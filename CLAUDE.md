@@ -39,8 +39,37 @@ how to install and implement this project.
   through `auth_user.py` (browser OAuth) for `xoxp-` user tokens or
   `save_bot_token.py` (getpass) for the optional `xoxb-` audit-logging token.
   Re-pasting tokens in chat re-leaks them into transcripts/logs.
-- **Don't fabricate features.** This toolkit deliberately omits channel
-  management, admin operations, and AI agents. If asked, say so.
+- **Don't fabricate features.** This toolkit does NOT include AI agents. If
+  asked for those, say so.
+  - **Channel management IS now in scope** (as of the 2026-07 expansion). The
+    bot token carries channel scopes and the repo provides `channel_admin.py`
+    (resolve/ensure/create/rename/topic/archive), `preflight.py`, and
+    `check_bot_token.py`. The goal is a **demo-asset builder** with read/write
+    access to channels (and, as scopes are added, users/apps/content) so demos
+    can be staged easily in Slack. See "Channel admin toolbox" and the Grid
+    notes below.
+
+## Channel admin & Enterprise Grid (2026-07 expansion)
+
+This org is **Enterprise Grid** (workspace demo-13583 "Global", enterprise
+`E081F1M8TAN`). The bot token (`app_token`) carries channel scopes:
+`channels:read`, `groups:read`, `channels:manage`, `groups:write`,
+`channels:join`. Hard-won quirks — don't rediscover them:
+
+- **Grid needs `team_id`** on `conversations.list` and `conversations.create`
+  (else `missing_argument`). `channel_admin.py` auto-discovers it from a
+  persona token; reuse that helper rather than hard-coding.
+- **Archive/invite require bot membership**, even for PUBLIC channels
+  (`not_in_channel` otherwise). Bot self-joins public via `channels:join`;
+  PRIVATE channels need a manual `/invite` of the bot.
+- **Bot has no `users:read.email`** — resolve persona email→id via each
+  persona's own token `auth.test` (see `channel_admin.persona_user_id`).
+- After any bot-token rotation, run `.venv/bin/python check_bot_token.py` to
+  confirm the token installed to the RIGHT org (a reinstall can silently land
+  in the wrong Grid org → `team_access_not_granted`).
+
+Toolbox: `channel_admin.py` (CLI + library), `preflight.py` (validate configs
++ heal membership before sending), `archive_channel.py`, `check_bot_token.py`.
 
 ## Critical OAuth gotcha
 

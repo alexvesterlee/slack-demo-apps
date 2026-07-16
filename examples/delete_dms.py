@@ -48,6 +48,16 @@ def delete_one(sender_email: str, recipient_user_id: str, target_ts: str) -> tup
     return True, channel
 
 
+def delete_channel_msg(sender_email: str, channel_id: str, target_ts: str) -> tuple[bool, str]:
+    """Delete a channel message directly — no probe needed since we have the channel ID."""
+    client = user_client(sender_email)
+    try:
+        client.chat_delete(channel=channel_id, ts=target_ts)
+        return True, channel_id
+    except SlackApiError as e:
+        return False, f"chat.delete failed: {e.response.get('error')}"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--manifest", required=True, help="Path to manifest JSON from send_dms_as_users.py")
@@ -59,26 +69,28 @@ def main() -> int:
     failures = 0
     for entry in manifest.get("sent", []):
         sender = entry["sender_email"]
-        recipient = entry["recipient_user_id"]
         ts = entry["ts"]
+        recipient = entry.get("recipient_user_id")
+        channel_id = entry.get("channel_id")
+        is_dm = bool(recipient)
+
         try:
-            ok, info = delete_one(sender, recipient, ts)
+            if is_dm:
+                ok, info = delete_one(sender, recipient, ts)
+            else:
+                ok, info = delete_channel_msg(sender, channel_id, ts)
         except RuntimeError as e:
             print(f"[skip] {sender}: {e}", file=sys.stderr)
             failures += 1
             continue
+
+        target = f"<@{recipient}>" if is_dm else f"<#{channel_id}>"
         if ok:
             print(f"[deleted] {sender} ts={ts} channel={info}")
-            audit_log(
-                f":wastebasket: DM deleted — {sender} -> <@{recipient}> "
-                f"(`ts={ts}`, channel=`{info}`)"
-            )
+            audit_log(f":wastebasket: deleted — {sender} -> {target} (`ts={ts}`, channel=`{info}`)")
         else:
             print(f"[fail] {sender} ts={ts} — {info}", file=sys.stderr)
-            audit_log(
-                f":warning: DM delete failed — {sender} -> <@{recipient}> "
-                f"(`ts={ts}`) — {info}"
-            )
+            audit_log(f":warning: delete failed — {sender} -> {target} (`ts={ts}`) — {info}")
             failures += 1
 
     return 1 if failures else 0

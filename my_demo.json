@@ -1,0 +1,70 @@
+{
+  "_comment": "Copy this file (e.g. to send_messages.json), edit the values, then: python examples/send_dms_as_users.py --config send_messages.json --manifest sent.json",
+  "messages": [
+    {
+      "sender_email": "demoeng+elliot_edwards_13583@slack-corp.com",
+      "recipient_user_id": "U081EUL8L59",
+      "text": "Quick one \u2014 where do we land on the Acme renewal? Need a best/most-likely for the Q2 board readout by EOD tomorrow."
+    },
+    {
+      "sender_email": "demoeng+amy_weaver_13583@slack-corp.com",
+      "recipient_user_id": "U081EUL8L59",
+      "text": "Hi \u2014 following up on the proposal you sent last week. Any chance you have 20 min this week to walk through it?"
+    },
+    {
+      "sender_email": "demoeng+carlos_gonzalez_13583@slack-corp.com",
+      "recipient_user_id": "U081EUL8L59",
+      "text": "Hey, just wanted to loop you in on the latest from the engineering side. Let me know when you have a few minutes to connect."
+    },
+    {
+      "sender_email": "demoeng+elliot_edwards_13583@slack-corp.com",
+      "channel_id": "C0AKTRGV5EG",
+      "text": "Team \u2014 Acme is in final negotiations. Three other enterprise deals above $500K in the pipe. Strong Q2 shaping up."
+    },
+    {
+      "sender_email": "demoeng+amy_weaver_13583@slack-corp.com",
+      "channel_id": "C0AKTRGV5EG",
+      "text": "Reminder: Q2 forecast submission due by Thursday COB. Need best-case and commit numbers from all regional leads."
+    },
+    {
+      "sender_email": "demoeng+carlos_gonzalez_13583@slack-corp.com",
+      "channel_id": "C0AKTRGV5EG",
+      "text": "Acme's CTO reached out about an expanded POC. Big signal on the platform side \u2014 looping in the team."
+    },
+    {
+      "sender_email": "demoeng+amy_weaver_13583@slack-corp.com",
+      "channel_id": "C095A0MUQE5",
+      "text": "Leadership sync \u2014 quick pulse check before we get into the board prep. Where are we landing on Q2 commit? I need a real number, not a stretch. Elliot, Alaia \u2014 numbers by EOD."
+    },
+    {
+      "sender_email": "demoeng+elliot_edwards_13583@slack-corp.com",
+      "channel_id": "C095A0MUQE5",
+      "text": "Enterprise is at $4.2M commit, $5.1M best case. Acme and Omega are the two big swings \u2014 Acme is locked, Omega we're 80% on the renewal plus a real shot at the expansion. I feel good about hitting $4.8M."
+    },
+    {
+      "sender_email": "demoeng+alaia_merz_13583@slack-corp.com",
+      "channel_id": "C095A0MUQE5",
+      "text": "Mid-market is at $1.9M commit. We had two deals slip from May to June but both are signed-off and in legal now. I'd put us at $2.1M best case. One wildcard \u2014 Meridian Technologies accelerated their timeline, could close a $300K net-new before month end."
+    },
+    {
+      "sender_email": "demoeng+amy_weaver_13583@slack-corp.com",
+      "channel_id": "C095A0MUQE5",
+      "text": "OK so combined we're looking at $6.1M commit, $7.2M best case. Board is expecting $6.5M. That's achievable but we have zero room for Omega to slip. Elliot \u2014 what do we need to do to lock that renewal this week? I can jump on a call with their exec team if it helps."
+    },
+    {
+      "sender_email": "demoeng+elliot_edwards_13583@slack-corp.com",
+      "channel_id": "C095A0MUQE5",
+      "text": "That would actually be huge. Their CFO has been the sticking point \u2014 they want executive alignment before they sign. A call with you, Amy, would probably unblock it. Carlos is managing the day-to-day but an exec touch from our side is exactly what they're looking for."
+    },
+    {
+      "sender_email": "demoeng+amy_weaver_13583@slack-corp.com",
+      "channel_id": "C095A0MUQE5",
+      "text": "Done. Have Carlos send the intro and I'll get on their calendar for Thursday. One other thing \u2014 I want to talk about the Omega expansion opportunity in the board meeting. $180K net-new on top of a renewal is a strong land-and-expand story. Make sure that's in the deck."
+    },
+    {
+      "sender_email": "demoeng+amy_weaver_13583@slack-corp.com",
+      "channel_id": "C0AT84Z21L1",
+      "text": ":rotating_light: *CRITICAL INCIDENT \u2014 P0 | Authentication Service Degradation*\n\n*Status:* Active \u2014 elevated error rates on SSO login across enterprise tier\n*Impacted:* ~30% of enterprise users unable to authenticate via SSO\n\n*Root Cause Analysis:*\nA certificate rotation pushed in last night's deployment (v4.12.1) introduced a mismatch between the identity provider metadata and our internal token validation service. The cert rotation completed successfully in staging but the production identity provider cache was not flushed, causing token verification to fail for a subset of enterprise SSO configurations.\n\n*Actions Taken:*\n\u2022 Deployment v4.12.1 rolled back to v4.11.9 at 08:42 UTC\n\u2022 IDP cache flush initiated across all production nodes\n\u2022 Engineering war room active \u2014 @channel looped in\n\u2022 Customer comms sent to all affected enterprise accounts\n\n*Expected Resolution:* Cache propagation completing now. Full service restoration expected by *10:30 UTC* (~45 min). We will post an all-clear here once confirmed.\n\nUpdates every 15 min until resolved."
+    }
+  ]
+}

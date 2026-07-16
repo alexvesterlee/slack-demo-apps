@@ -1,23 +1,13 @@
-"""Send DMs as different personas to a single recipient.
+"""Send DMs or channel messages as different personas.
 
 Reads a JSON config file with a list of messages, each specifying:
   - sender_email: must match a key in tokens.json["users"]
-  - recipient_user_id: Slack user ID (starts with U) of the DM recipient
+  - recipient_user_id: Slack user ID (U...) for a DM  — OR —
+  - channel_id: Slack channel ID (C...) to post to a channel
   - text: message body
 
-Optionally writes a manifest of (sender_email, channel_id, ts) tuples that
-delete_dms.py can read to clean up the seeded DMs later.
-
-Example config:
-    {
-      "messages": [
-        {
-          "sender_email": "boss@yourorg.com",
-          "recipient_user_id": "U01ABCDEFGH",
-          "text": "Quick one — can you send me the latest forecast?"
-        }
-      ]
-    }
+Optionally writes a manifest of sent entries that delete_dms.py can read
+to clean up the seeded messages later.
 """
 from __future__ import annotations
 
@@ -33,15 +23,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from config import audit_log, user_client  # noqa: E402
 
 
-def send_one(sender_email: str, recipient_user_id: str, text: str) -> dict:
+def send_one(sender_email: str, channel: str, text: str, recipient_user_id: str | None = None) -> dict:
     client = user_client(sender_email)
-    resp = client.chat_postMessage(channel=recipient_user_id, text=text)
-    return {
+    resp = client.chat_postMessage(channel=channel, text=text)
+    entry: dict = {
         "sender_email": sender_email,
-        "recipient_user_id": recipient_user_id,
         "channel_id": resp["channel"],
         "ts": resp["ts"],
     }
+    if recipient_user_id:
+        entry["recipient_user_id"] = recipient_user_id
+    return entry
 
 
 def main() -> int:
@@ -56,23 +48,33 @@ def main() -> int:
     sent = []
     failures = 0
     for msg in config.get("messages", []):
+        sender = msg["sender_email"]
+        text = msg["text"]
+        recipient_user_id = msg.get("recipient_user_id")
+        channel = msg.get("channel_id") or recipient_user_id
+        is_dm = bool(recipient_user_id)
         try:
-            entry = send_one(msg["sender_email"], msg["recipient_user_id"], msg["text"])
+            entry = send_one(sender, channel, text, recipient_user_id)
         except (SlackApiError, RuntimeError) as e:
             err = e.response.get("error") if isinstance(e, SlackApiError) else str(e)
-            print(f"[fail] {msg.get('sender_email')!r}: {err}", file=sys.stderr)
-            audit_log(
-                f":warning: DM seed failed — {msg.get('sender_email')} -> "
-                f"<@{msg.get('recipient_user_id')}> error=`{err}`"
-            )
+            target = f"<@{recipient_user_id}>" if is_dm else f"<#{channel}>"
+            print(f"[fail] {sender!r} -> {target}: {err}", file=sys.stderr)
+            audit_log(f":warning: send failed — {sender} -> {target} error=`{err}`")
             failures += 1
             continue
         sent.append(entry)
-        print(f"[sent] {entry['sender_email']} -> <@{entry['recipient_user_id']}> ts={entry['ts']}")
-        audit_log(
-            f":inbox_tray: DM seeded — {entry['sender_email']} -> "
-            f"<@{entry['recipient_user_id']}> (`ts={entry['ts']}`)"
-        )
+        if is_dm:
+            print(f"[sent] {entry['sender_email']} -> <@{recipient_user_id}> ts={entry['ts']}")
+            audit_log(
+                f":inbox_tray: DM seeded — {entry['sender_email']} -> "
+                f"<@{recipient_user_id}> (`ts={entry['ts']}`)"
+            )
+        else:
+            print(f"[sent] {entry['sender_email']} -> #{channel} ts={entry['ts']}")
+            audit_log(
+                f":inbox_tray: channel msg seeded — {entry['sender_email']} -> "
+                f"<#{channel}> (`ts={entry['ts']}`)"
+            )
 
     if args.manifest:
         with open(args.manifest, "w") as f:

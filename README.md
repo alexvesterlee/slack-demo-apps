@@ -1,4 +1,4 @@
-# slack-dm-generator
+# slack-demo-generator
 
 A demo preparation tool for Slack Solutions Engineers. Use it to seed a
 realistic, "lived-in" Slack inbox before a customer demo — sending DMs on

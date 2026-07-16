@@ -1,0 +1,25 @@
+{
+  "channel_id": "C0B8XPKMD1P",
+  "messages": [
+    {
+      "sender_email": "demoeng+elliot_edwards_13583@slack-corp.com",
+      "text": "update from the call with Vince — it's more concerning than I thought. their head of ops has been demoing a competitor and Vince found out from a contact, not from the customer directly. so the relationship has some gaps. few things stood out:\n• they feel like they're not getting proactive value, just reactive support\n• the ERP integration gap is a real blocker for one of their core workflows\n• Vince hasn't had exec contact in over 4 months\n\nI think we need to escalate this one. they're strategic enough that losing them would hurt and we have enough lead time to do something about it if we move now"
+    },
+    {
+      "sender_email": "demoeng+erin_samuels_13583@slack-corp.com",
+      "text": "yeah that changes things. if a competitor is already in there actively demoing, we're behind. I think we need Amy involved — even just an exec outreach email to their VP to reestablish the relationship. it signals that we're paying attention at the right level. Elliot can you bring this to her?"
+    },
+    {
+      "sender_email": "demoeng+carlos_gonzalez_13583@slack-corp.com",
+      "text": "on the product side — I can put together a short brief on the ERP roadmap and where the integration lands. if there's anything we can pull forward or offer as a beta access I'd rather know now than after they've made a decision"
+    },
+    {
+      "sender_email": "demoeng+elliot_edwards_13583@slack-corp.com",
+      "text": "yes — Carlos please do that, helpful to have something concrete if Amy reaches out and they ask about it. Erin I'll bring it to Amy tomorrow. I want to go in with a clear ask: exec outreach from her, a recovery EBR within 3 weeks, and a short-term product commitment on the integration or a clear timeline. Vince will lead the ground game but we need to show up differently at the top"
+    },
+    {
+      "sender_email": "demoeng+erin_samuels_13583@slack-corp.com",
+      "text": "makes sense. for what it's worth — Associate Supply has been a customer for 3 years, they've never churned a seat. if we can get in front of this I think the relationship is salvageable. let's just move fast"
+    }
+  ]
+}

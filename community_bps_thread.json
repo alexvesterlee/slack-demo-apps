@@ -1,0 +1,29 @@
+{
+  "channel_id": "C0BJ5HM97S4",
+  "messages": [
+    {
+      "sender_email": "demoeng+cindy_central_13583@slack-corp.com",
+      "text": ":wave: piggybacking on the coverage-vs-signal-quality thread from earlier — we ran the Revenue Harness through a full week of low-confidence deal signals and I want to share what actually held up. tl;dr: the *signal decay rate* metric someone mentioned above is the real MVP. code coverage told us almost nothing useful once the inputs got noisy. curious how others are weighting these in their QA rhythm :thread:"
+    },
+    {
+      "sender_email": "demoeng+carlos_gonzalez_13583@slack-corp.com",
+      "text": "this matches what we saw exactly. the thing that finally clicked for us was treating *false positive revival rate* as a first-class metric instead of an afterthought. when the Harness flags a dead deal as \"re-engaging\" and it's just noise, that erodes rep trust fast — way faster than a missed signal does. we now gate every stress-test pass on it staying under ~8%."
+    },
+    {
+      "sender_email": "demoeng+erin_samuels_13583@slack-corp.com",
+      "text": "+1 on the trust angle. one rhythm that's working for us: a *Monday calibration pass* where we pull 10 flagged deals and score them as a group before anyone touches their pipeline. it surfaces drift early and keeps everyone honest about what \"good signal\" actually means. cheap to run, high payoff."
+    },
+    {
+      "sender_email": "demoeng+elliot_edwards_13583@slack-corp.com",
+      "text": "the calibration pass is a great call — we should standardize that. one thing I'd add to the metric set is *time-to-recovery* after a signal drought. surviving low-confidence weeks is table stakes; what separates a resilient Harness config is how fast it course-corrects once quality signal comes back. happy to draft a shared testing playbook if there's appetite."
+    },
+    {
+      "sender_email": "demoeng+alaia_merz_13583@slack-corp.com",
+      "text": ":raised_hands: yes please to the playbook. if we put it in a Canvas right here it stays evergreen and new folks can self-serve. I'll take a first pass at the structure — metrics, cadence, and a sample test matrix — and drop it in this thread for feedback by end of week."
+    },
+    {
+      "sender_email": "demoeng+cindy_central_13583@slack-corp.com",
+      "text": "perfect. let's align on the baseline so the playbook has teeth:\n```\nHarness QA baseline (v0):\n- Signal decay rate: tracked weekly\n- False positive revival rate: < 8%\n- Prediction drift: flag if > 15% between syncs w/ no new activity\n- Time-to-recovery: < 2 syncs after signal returns\n```\nif your numbers differ wildly from these, shout — that's exactly the kind of gap the calibration pass is meant to catch. great thread all :100:"
+    }
+  ]
+}

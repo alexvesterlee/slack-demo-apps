@@ -1,0 +1,19 @@
+{
+  "messages": [
+    {
+      "sender_email": "demoeng+elliot_edwards_13583@slack-corp.com",
+      "channel_id": "C0AKTRGV5EG",
+      "text": "Team — Acme is in final negotiations. Three other enterprise deals above $500K in the pipe. Strong Q2 shaping up."
+    },
+    {
+      "sender_email": "demoeng+amy_weaver_13583@slack-corp.com",
+      "channel_id": "C0AKTRGV5EG",
+      "text": "Reminder: Q2 forecast submission due by Thursday COB. Need best-case and commit numbers from all regional leads."
+    },
+    {
+      "sender_email": "demoeng+carlos_gonzalez_13583@slack-corp.com",
+      "channel_id": "C0AKTRGV5EG",
+      "text": "Acme's CTO reached out about an expanded POC. Big signal on the platform side — looping in the team."
+    }
+  ]
+}

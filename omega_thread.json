@@ -1,0 +1,37 @@
+{
+  "channel_id": "C094QCR3KNG",
+  "messages": [
+    {
+      "sender_email": "demoeng+cindy_central_13583@slack-corp.com",
+      "text": "hey team — using this thread to get aligned before Amy's call Thursday. drop whatever you've heard from Omega recently, even small stuff. want to make sure we're all working from the same picture"
+    },
+    {
+      "sender_email": "demoeng+carlos_gonzalez_13583@slack-corp.com",
+      "text": "main thing on my end: David Park (CFO) is the one who has to sign off and he's barely in the loop. Sarah's been cc'ing him but I don't think he's engaging. the one time I got him on a call he kept referencing a renewal they did 18 months ago that went over budget — that's clearly still in his head. we need to get in front of him directly"
+    },
+    {
+      "sender_email": "demoeng+erin_samuels_13583@slack-corp.com",
+      "text": "Sarah basically confirmed that. she said David wants price certainty before he'll look at anything — a multi-year lock would probably get him over the line pretty quickly. also worth knowing: he's under pressure to keep this year's software spend in line, so the budget thing isn't just a negotiating tactic"
+    },
+    {
+      "sender_email": "demoeng+cindy_central_13583@slack-corp.com",
+      "text": "heads up on process — just found out anything over $150K at Omega requires board ratification. Sarah mentioned it in passing but I think it's a real step. their next board meeting is June 28, so if we get legal something clean by ~June 18 we could hit that cycle and avoid the mid-July crunch. Elliot can you confirm if that timing works on our end?"
+    },
+    {
+      "sender_email": "demoeng+elliot_edwards_13583@slack-corp.com",
+      "text": "didn't know about the board step — good catch. June 18 is tight but doable. Cindy can you get more detail from Sarah on how that process actually works? also need to know if the board meets quarterly or if June 28 is a one-off"
+    },
+    {
+      "sender_email": "demoeng+carlos_gonzalez_13583@slack-corp.com",
+      "text": "few other things Sarah has flagged that are worth having in your back pocket:\n• their new enterprise customers are taking way too long to onboard — she says it's gotten noticeably worse this year and it's generating a lot of downstream support tickets\n• she's asked twice about whether customers can pull their own QBR data — sounds like her team is doing a lot of manual reporting right now\n• reliability is a big deal for them — their last vendor went down twice in 6 months and she's watching us closely on that"
+    },
+    {
+      "sender_email": "demoeng+erin_samuels_13583@slack-corp.com",
+      "text": "^ all of that matches what I heard too. Sarah is genuinely in our corner — I think she'll do the internal selling if we give her the right ammunition after the call. just don't go around her to David directly, she's done a lot of work to get him this far"
+    },
+    {
+      "sender_email": "demoeng+elliot_edwards_13583@slack-corp.com",
+      "text": "agreed. I'll put together a 2yr and 3yr pricing scenario and have it to you and Cindy by Wednesday noon — something concrete Amy can put on the table with David"
+    }
+  ]
+}

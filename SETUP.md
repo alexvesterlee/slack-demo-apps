@@ -1,4 +1,4 @@
-# slack-dm-generator — Setup
+# slack-demo-generator — Setup
 
 This toolkit lets you **send and delete DMs as real users** in your Slack
 demo org. Useful for seeding a "lived-in" inbox before a demo.
@@ -34,11 +34,11 @@ it from Spotlight: press `Cmd+Space`, type `Terminal`, hit Enter.
 this folder. In a fresh Terminal window, you get there once with:
 
 ```bash
-cd path/to/slack-dm-generator
+cd path/to/slack-demo-generator
 ```
 
 Replace `path/to/` with wherever you cloned/downloaded it (e.g.
-`cd ~/claude-projects/slack-dm-generator`).
+`cd ~/claude-projects/slack-demo-generator`).
 
 **About `.venv` (Python virtual environment).** Step 4 creates a folder
 called `.venv` inside the project. It's a private, sandboxed copy of Python
