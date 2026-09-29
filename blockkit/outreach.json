@@ -1,0 +1,49 @@
+{
+  "app": "Outreach",
+  "fake_bot_id": "Outreach",
+  "notes": "Outreach for Slack notifications (sales engagement). Mirrors Outreach's real card shape: NO header block — a bold statement line, then a blockquote (gray left-bar via mrkdwn `>`) of detail lines prefixed with emoji, then an `actions` row of buttons. Two families: meeting updates (prospect booked/rescheduled a meeting → 'View prospect in Outreach') and Kaia recording mentions/comments (someone @mentioned you → 'Reply' + 'View comment in Outreach'). The 'View … in Outreach' buttons are URL buttons (open Outreach, no app response needed); 'Reply' is a plain action button (visual only — unhandled clicks show a transient warning to the clicker). Fits sales/AE/pipeline channels. Logo: add logos/outreach.png (indigo rounded-square pin) + push_logos.py, or pass --icon-emoji :round_pushpin: until then.",
+  "examples": [
+    {
+      "name": "meeting_booked",
+      "when": "A prospect books a meeting with the rep — meeting-updates notification to a sales/AE DM or channel.",
+      "blocks": [
+        { "type": "section", "text": { "type": "mrkdwn", "text": ":bell: Prospect *Jane Appleseed* booked a meeting with you.\n>:calendar: 30 Minute meeting\n>:clock3: Wednesday, July 20 from 3:30–4:00 PM (PST)." } },
+        { "type": "actions", "elements": [
+          { "type": "button", "text": { "type": "plain_text", "text": "View prospect in Outreach", "emoji": true }, "url": "https://web.outreach.io/prospects/482910", "action_id": "outreach_view_prospect" }
+        ] }
+      ]
+    },
+    {
+      "name": "meeting_rescheduled",
+      "when": "A prospect reschedules an existing meeting — meeting-updates notification.",
+      "blocks": [
+        { "type": "section", "text": { "type": "mrkdwn", "text": ":bell: *Jane Appleseed* rescheduled a meeting with you.\n>:memo: Team Intro's / Summit.io\n>:clock3: Wednesday, July 20 from 3:30–4:00 PM (PST)." } },
+        { "type": "actions", "elements": [
+          { "type": "button", "text": { "type": "plain_text", "text": "View prospect in Outreach", "emoji": true }, "url": "https://web.outreach.io/prospects/482910", "action_id": "outreach_view_prospect" }
+        ] }
+      ]
+    },
+    {
+      "name": "kaia_mention",
+      "when": "A teammate @mentions you in a Kaia call recording — Mentions & Comments notification.",
+      "blocks": [
+        { "type": "section", "text": { "type": "mrkdwn", "text": "*Jane Appleseed* mentioned you in the recording *Deal Progress*\n>@Nora Brightwater Any update on this?" } },
+        { "type": "actions", "elements": [
+          { "type": "button", "text": { "type": "plain_text", "text": "Reply", "emoji": true }, "action_id": "outreach_reply" },
+          { "type": "button", "text": { "type": "plain_text", "text": "View comment in Outreach", "emoji": true }, "url": "https://web.outreach.io/kaia/recordings/deal-progress?comment=1", "action_id": "outreach_view_comment" }
+        ] }
+      ]
+    },
+    {
+      "name": "kaia_mention_proposal",
+      "when": "A teammate @mentions you in a Kaia recording with a status note — Mentions & Comments notification (alternate copy).",
+      "blocks": [
+        { "type": "section", "text": { "type": "mrkdwn", "text": "*Samuel Oakenshadet* mentioned you in the recording *Proposal Review*\n>@Nora Brightwater Client showed strong interest; follow-up scheduled." } },
+        { "type": "actions", "elements": [
+          { "type": "button", "text": { "type": "plain_text", "text": "Reply", "emoji": true }, "action_id": "outreach_reply" },
+          { "type": "button", "text": { "type": "plain_text", "text": "View comment in Outreach", "emoji": true }, "url": "https://web.outreach.io/kaia/recordings/proposal-review?comment=2", "action_id": "outreach_view_comment" }
+        ] }
+      ]
+    }
+  ]
+}
