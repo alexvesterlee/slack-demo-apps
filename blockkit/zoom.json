@@ -1,0 +1,81 @@
+{
+  "app": "Zoom",
+  "fake_bot_id": "Zoom",
+  "notes": "Zoom for Slack notifications: upcoming meeting reminders and cloud-recording-ready cards. No real interactivity — 'Join Meeting' / 'View Recording' are URL buttons that open Zoom. Fits account/deal channels for customer calls. The verde_* examples tie to the SFDC 'Verde, Inc - Welo Guard - 2yr - 120k' opportunity (host Alex Lee; attendees Jack Strickland CFO, Lauren Bailey CEO).",
+  "examples": [
+    {
+      "name": "meeting_scheduled",
+      "when": "A Zoom meeting is scheduled/invited — reminder card to a deal or team channel.",
+      "blocks": [
+        { "type": "header", "text": { "type": "plain_text", "text": "📅 Upcoming Zoom Meeting", "emoji": true } },
+        { "type": "section", "text": { "type": "mrkdwn", "text": "*Acme Corp — Quarterly Business Review*" } },
+        { "type": "section", "fields": [
+          { "type": "mrkdwn", "text": "*When:*\nToday · 2:00–2:30 PM PT" },
+          { "type": "mrkdwn", "text": "*Host:*\nFrank Reynolds" },
+          { "type": "mrkdwn", "text": "*Meeting ID:*\n852 1234 5678" },
+          { "type": "mrkdwn", "text": "*Passcode:*\n418823" }
+        ] },
+        { "type": "actions", "elements": [
+          { "type": "button", "text": { "type": "plain_text", "text": "Join Meeting", "emoji": true }, "style": "primary", "url": "https://us02web.zoom.us/j/85212345678", "action_id": "zoom_join" }
+        ] }
+      ]
+    },
+    {
+      "name": "recording_ready",
+      "when": "A cloud recording finishes processing and is available to view.",
+      "blocks": [
+        { "type": "header", "text": { "type": "plain_text", "text": "📹 Cloud Recording Ready", "emoji": true } },
+        { "type": "section", "text": { "type": "mrkdwn", "text": "*<https://us02web.zoom.us/rec/share/acme-qbr|Acme Corp — Quarterly Business Review>*" } },
+        { "type": "section", "fields": [
+          { "type": "mrkdwn", "text": "*Host:*\nFrank Reynolds" },
+          { "type": "mrkdwn", "text": "*Duration:*\n47 min" },
+          { "type": "mrkdwn", "text": "*Recorded:*\nToday" },
+          { "type": "mrkdwn", "text": "*Participants:*\n6" }
+        ] },
+        { "type": "context", "elements": [
+          { "type": "mrkdwn", "text": "AI Companion summary & transcript available in Zoom" }
+        ] },
+        { "type": "actions", "elements": [
+          { "type": "button", "text": { "type": "plain_text", "text": "View Recording", "emoji": true }, "url": "https://us02web.zoom.us/rec/share/acme-qbr", "action_id": "zoom_view_recording" }
+        ] }
+      ]
+    },
+    {
+      "name": "verde_welo_recording",
+      "when": "Cloud recording of the Verde Group Welo Guard proposal-review call is ready — posted to the Verde Group account channel.",
+      "blocks": [
+        { "type": "header", "text": { "type": "plain_text", "text": "📹 Cloud Recording Ready", "emoji": true } },
+        { "type": "section", "text": { "type": "mrkdwn", "text": "*<https://us02web.zoom.us/rec/share/verde-welo-guard-proposal|Verde Group — Welo Guard Proposal Review>*" } },
+        { "type": "section", "fields": [
+          { "type": "mrkdwn", "text": "*Host:*\nAlex Lee" },
+          { "type": "mrkdwn", "text": "*Duration:*\n38 min" },
+          { "type": "mrkdwn", "text": "*Recorded:*\nSep 26, 2026" },
+          { "type": "mrkdwn", "text": "*Participants:*\n4" }
+        ] },
+        { "type": "context", "elements": [
+          { "type": "mrkdwn", "text": "AI Companion summary & transcript available · Verde, Inc — Welo Guard (2yr)" }
+        ] },
+        { "type": "actions", "elements": [
+          { "type": "button", "text": { "type": "plain_text", "text": "View Recording", "emoji": true }, "url": "https://us02web.zoom.us/rec/share/verde-welo-guard-proposal", "action_id": "zoom_view_recording" }
+        ] }
+      ]
+    },
+    {
+      "name": "verde_welo_meeting",
+      "when": "Upcoming contract-walkthrough Zoom with Verde Group (Welo Guard deal) — reminder in the account channel.",
+      "blocks": [
+        { "type": "header", "text": { "type": "plain_text", "text": "📅 Upcoming Zoom Meeting", "emoji": true } },
+        { "type": "section", "text": { "type": "mrkdwn", "text": "*Verde Group — Welo Guard Contract Walkthrough*" } },
+        { "type": "section", "fields": [
+          { "type": "mrkdwn", "text": "*When:*\nWed, Sep 30 · 10:00–10:30 AM PT" },
+          { "type": "mrkdwn", "text": "*Host:*\nAlex Lee" },
+          { "type": "mrkdwn", "text": "*Meeting ID:*\n852 4471 0092" },
+          { "type": "mrkdwn", "text": "*Attendees:*\nJack Strickland (CFO), Lauren Bailey (CEO)" }
+        ] },
+        { "type": "actions", "elements": [
+          { "type": "button", "text": { "type": "plain_text", "text": "Join Meeting", "emoji": true }, "style": "primary", "url": "https://us02web.zoom.us/j/85244710092", "action_id": "zoom_join" }
+        ] }
+      ]
+    }
+  ]
+}
