@@ -34,6 +34,23 @@
           { "type": "mrkdwn", "text": "Envelope ID e1f2a3b4 · All parties signed" }
         ] }
       ]
+    },
+    {
+      "name": "verde_welo_sent",
+      "when": "The Welo Guard 2-yr order form is sent to Verde Group for signature (SFDC opp 'Verde, Inc - Welo Guard - 2yr - 120k', Proposal/Quote).",
+      "blocks": [
+        { "type": "header", "text": { "type": "plain_text", "text": "✍️ Envelope Sent for Signature", "emoji": true } },
+        { "type": "section", "fields": [
+          { "type": "mrkdwn", "text": "*Document:*\nVerde Group — Welo Guard Order Form (2-Year)" },
+          { "type": "mrkdwn", "text": "*Recipient:*\nJack Strickland (CFO)" },
+          { "type": "mrkdwn", "text": "*Status:*\nSent — awaiting signature" },
+          { "type": "mrkdwn", "text": "*Expires:*\n2026-10-05" }
+        ] },
+        { "type": "section", "text": { "type": "mrkdwn", "text": "*Total contract value:* $120,000 · 24-month term" } },
+        { "type": "context", "elements": [
+          { "type": "mrkdwn", "text": "Envelope ID 7c1a-9f42 · Sent by Alex Lee" }
+        ] }
+      ]
     }
   ]
 }
