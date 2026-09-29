@@ -1,4 +1,4 @@
-# demo-app-logos
+# slack-demo-apps
 
 Public logo assets for **fictitious third-party app notifications** posted into the demo
 Slack org by the `demo-refresh` skill's `send_app_notification.py` helper.
@@ -8,7 +8,7 @@ over `raw.githubusercontent.com`. The helper builds each avatar as:
 
     icon_url = <LOGO_BASE>/<blockkit-key>.png
 
-with `LOGO_BASE = https://raw.githubusercontent.com/alexvesterlee/demo-app-logos/main/logos`.
+with `LOGO_BASE = https://raw.githubusercontent.com/alexvesterlee/slack-demo-apps/main/logos`.
 
 ## Naming convention
 
