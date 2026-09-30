@@ -100,6 +100,25 @@ scopes: `channels:read`, `groups:read`, `channels:manage`, `groups:write`,
 Toolbox: `scripts/channel_admin.py` (CLI + library), `scripts/preflight.py` (validate configs
 + heal membership before sending), `scripts/archive_channel.py`, `scripts/check_bot_token.py`.
 
+## Connecting Salesforce, Jira & other MCP servers
+
+When the user wants to connect tools (SETUP Side Quest 2), do it for them:
+
+- **Salesforce CLI:** install it (`brew install sf` on macOS; needs Node). The
+  user runs `sf org login web --alias demo --set-default` themselves in
+  Terminal (browser login). Scripts need `/opt/homebrew/bin` on `PATH`, and
+  `sf --json` output can include ANSI codes, so set `NO_COLOR=1` when parsing.
+- **Salesforce MCP:** `claude mcp add salesforce -- npx -y @salesforce/mcp --orgs DEFAULT_TARGET_ORG --toolsets all`
+  (uses the CLI login).
+- **Atlassian MCP:** `claude mcp add --transport http atlassian https://mcp.atlassian.com/v1/mcp`,
+  then the user runs `/mcp` → atlassian to sign in.
+- After adding a server, tell the user to restart Claude Code and check `/mcp`.
+- **Use them together with Slack.** Salesforce record changes (new case, new
+  opportunity, date changes) can fire the org's real Salesforce-to-Slack
+  workflow notifications, so prefer updating Salesforce over faking those.
+  For Jira app notifications, create a real ticket via the Atlassian MCP first
+  and pass its URL with `--ticket-url`.
+
 ## Scheduling a skill
 
 When the user asks to schedule a skill (e.g. "run my demo refresh every Monday

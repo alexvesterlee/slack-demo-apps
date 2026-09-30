@@ -561,38 +561,62 @@ app notifications can you post?"* for the full list.
 
 ## Side Quest 2: Connect Salesforce & other tools
 
-The most convincing demos reference data that actually exists, so names,
-amounts, stages, and dates all line up. There are **two ways** the toolkit
-reaches that data — you'll use both, for different jobs:
+Connecting Salesforce and Jira lets Claude **read and update real data** in
+those tools, not just post in Slack. That makes demos much more convincing:
 
-**A. Live, interactive reads — via an MCP server.** When you ask Claude Code in
-plain English — e.g. *"pull the open renewal opportunity for <account> and write
-a thread about it in that account's channel"* — Claude queries the connected
-**MCP server**, then uses the persona / app-notification scripts above to post
-the result. MCP servers are configured in **Claude Code itself** (not in this
-repo).
+- **Salesforce changes trigger real workflow notifications.** If your demo org
+  has Salesforce-to-Slack workflows set up, Claude can update Salesforce and
+  let the workflow do the rest. For example:
+  - *Create a case for Omega, Inc.* → a **"Critical Case"** workflow
+    notification appears in the Omega account channel.
+  - *Create a new opportunity* → a **new opportunity** notification fires.
+  - *Push out close dates* → date-change notifications, and a pipeline that
+    always looks current.
+- **App notifications can link to real Jira tickets.** Claude creates a real
+  ticket in Jira, then posts the Jira app notification linked to it. Anyone
+  watching the demo can click through to a ticket that actually exists.
 
-- **Salesforce** — read an opportunity's name, amount, stage, close date, then
-  seed a matching deal-team thread.
-- **Jira / Atlassian, ServiceNow, or any other MCP server** — reference a real
-  ticket or record so a notification card links to something that exists.
+### Connect Salesforce
 
-**B. Scripted reads/writes — via a vendor CLI.** The repo's own automation talks
-to Salesforce through the **`sf` CLI**, not MCP. For example
-`scripts/update_opportunities.py` shells out to it:
+This takes two pieces. The **Salesforce CLI** lets the toolkit's scripts (and
+scheduled refreshes) update Salesforce. The **Salesforce MCP server** lets
+Claude work with Salesforce when you ask in plain English. The MCP server uses
+the CLI's login, so you only sign in once.
 
-```python
-subprocess.run([sf_bin(), "data", "query", "-o", SF_ORG, "--query", soql, "--json"])
-```
+1. **Install the CLI.** Ask Claude: *"Install the Salesforce CLI for me."*
+2. **[Terminal] Sign in to your demo Salesforce org.** In your separate
+   Terminal window, run:
+   ```bash
+   sf org login web --alias demo --set-default
+   ```
+   A browser opens. Sign in to your demo Salesforce org.
+3. **Add the MCP server.** Ask Claude: *"Connect the Salesforce MCP server to
+   my default org."* (Under the hood it runs
+   `claude mcp add salesforce -- npx -y @salesforce/mcp --orgs DEFAULT_TARGET_ORG --toolsets all`.)
+4. **Restart Claude** (type `/exit`, then `claude` again), then type `/mcp` to
+   check that `salesforce` shows as connected.
 
-So anything a *committed script* reads or writes in Salesforce uses the CLI
-(install it separately; on macOS it's `brew install --cask sf`, and it must be
-on your `PATH`). The live/interactive path (A) uses MCP.
+### Connect Jira (Atlassian)
 
-> ℹ Either way, the point is the same: the Slack story and the CRM/ticketing
-> data tell the *same* story because one was generated from the other.
-> **Rule of thumb:** *you asking Claude* → MCP; *a script running on its own* →
-> the vendor CLI.
+1. Ask Claude: *"Connect the Atlassian MCP server."* (It runs
+   `claude mcp add --transport http atlassian https://mcp.atlassian.com/v1/mcp`.)
+2. Restart Claude, type `/mcp`, choose **atlassian**, and sign in to your
+   Atlassian site in the browser.
+
+### Other tools
+
+Many tools (ServiceNow, Google Drive, and more) have MCP servers. Ask Claude
+*"help me connect the <tool> MCP server"* and it will find the setup steps, or
+check that tool's documentation.
+
+### Try it
+
+> "Create a high-priority case in Salesforce for Omega, Inc. about their
+> integration being down."
+
+> "Create a Jira ticket for the Welo Guard onboarding bug, then post a Jira app
+> notification about it in #welo-guard-implementation linked to the real
+> ticket."
 
 ---
 
