@@ -85,8 +85,9 @@ codes even with `--json`, so any script that parses `sf` output must set
 `NO_COLOR=1` and strip `\x1b\[[0-9;]*m` before `json.loads`.
 `scripts/update_opportunities.py` already does this.
 
-**Slack org type.** If your org is **Enterprise Grid** (a workspace nested under
-an enterprise `E...` id), note the Grid gotchas:
+**Slack org type.** Demo orgs are **Enterprise+ organizations** (formerly
+Enterprise Grid): workspaces nested under an enterprise `E...` id. Keep these
+gotchas in mind:
 - `conversations.list`/`create`/`archive` require an explicit **`team_id`**, and
   it must be the **workspace** id (`T...`), never the enterprise id (`E...`).
   `scripts/channel_admin.py` discovers the right `T...` automatically.
@@ -106,7 +107,7 @@ an enterprise `E...` id), note the Grid gotchas:
 only `chat:write` can post messages but can't upload files or add reactions.
 Adding a scope means editing `USER_SCOPES` in `scripts/auth_user.py` **and** re-authing
 each persona; already-issued tokens never gain scopes. Note too which personas
-belong to which workspace, if you're on Grid — a persona not in the target
+belong to which workspace — a persona not in the target
 workspace can't be invited there (`org_user_not_in_team`).
 
 ## Fictitious third-party app notifications (Block Kit)
@@ -287,7 +288,7 @@ whatever Step 2/3 wrote last time, keeping the inbox clean.
 
 ## Channel admin toolbox (`scripts/channel_admin.py`)
 
-Unlocked by the bot token's channel scopes. Grid-aware (team_id auto-discovered)
+Unlocked by the bot token's channel scopes. Enterprise+-aware (team_id auto-discovered)
 and idempotent where it makes sense.
 
 ```bash

@@ -291,8 +291,9 @@ Not every scope has a ready-made script. Most are there so Claude can do those
 things on request without you having to reinstall the app first.
 
 > ⚠ **About the `admin` scopes:** a user token only gets real admin power if
-> the persona who authorizes it is an org admin or owner, and on Enterprise
-> Grid an admin may need to approve the app before it installs. `auth_user.py`
+> the persona who authorizes it is an org admin or owner, and because demo
+> orgs are Enterprise+ organizations, an org admin may need to approve the app
+> before it installs. `auth_user.py`
 > doesn't request them by default. To use them for a persona, add them to
 > `USER_SCOPES` (see below). Treat any token that has them like an admin
 > password.
@@ -473,11 +474,23 @@ more examples.
 
 ## Step 9 — Save the bot token (unlocks channels & app notifications)
 
-Installing the app in Step 2 created a **bot token**, but the toolkit doesn't
+> ## ⚠️ This step is super important
+>
+> The bot token is what lets Claude **build out your demo org**, not just post
+> a few messages. With it, the app can:
+>
+> - **create new channels** and rename or archive old ones,
+> - **add users into channels**,
+> - **set channel topics**,
+> - **post app notifications** (Step 10),
+> - and double-check that each user token belongs to the right person.
+>
+> Without it, you're limited to posting messages in channels that already
+> exist. For bigger demo builds across many channels and users, you need this.
+
+Installing the app in Step 2 created the bot token, but the toolkit doesn't
 have a copy of it yet. (Your user tokens were saved automatically when you
-clicked Allow. The bot token has to be copied over once by hand.) With it,
-Claude can create and manage channels, post app notifications (Step 10), and
-double-check that each user token belongs to the right person.
+clicked Allow. The bot token has to be copied over once by hand.)
 
 1. In your app's settings, go to **Install App** and copy the **Bot User OAuth
    Token** (starts with `xoxb-`).
@@ -669,12 +682,11 @@ matches the user that originally sent the message.
 The bot isn't a member of that channel. It self-joins public channels via
 `channels:join`; for a private channel, `/invite` the bot manually first.
 
-**Bot channel calls return `missing_argument` (Enterprise Grid)** — Grid
-requires a `team_id` on `conversations.list`/`create`. Use `scripts/channel_admin.py`,
+**Bot channel calls return `missing_argument`** — Enterprise+ orgs require a `team_id` on `conversations.list`/`create`. Use `scripts/channel_admin.py`,
 which auto-discovers it.
 
 **`scripts/check_bot_token.py` / bot calls return `team_access_not_granted`** — A
-reinstall landed the bot token in the wrong Grid org. Reinstall to the correct
+reinstall landed the bot token in the wrong Enterprise+ org. Reinstall to the correct
 org and re-save the token.
 
 **A private channel reads as "not found"** — The bot only sees public channels

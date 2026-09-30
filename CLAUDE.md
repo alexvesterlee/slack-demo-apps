@@ -59,18 +59,19 @@ how to install and implement this project.
     (resolve/ensure/create/rename/topic/archive), `scripts/preflight.py`, and
     `scripts/check_bot_token.py`. The goal is a **demo-asset builder** with read/write
     access to channels (and, as scopes are added, users/apps/content) so demos
-    can be staged easily in Slack. See "Channel admin toolbox" and the Grid
-    notes below.
+    can be staged easily in Slack. See "Channel admin toolbox" and the
+    Enterprise+ notes below.
 
-## Channel admin & Enterprise Grid
+## Channel admin & Enterprise+ orgs
 
-Many demo orgs are **Enterprise Grid** (a workspace nested under an enterprise
-`E...` id). If the user's org is Grid, the quirks below apply; on a standalone
-workspace they're mostly harmless. The bot token (`app_token`) carries channel
+**Every demo org is an Enterprise+ organization** (formerly called Enterprise
+Grid): one or more workspaces (`T...`) nested under an enterprise (`E...`).
+There are no standalone workspaces on lower tiers, so always assume the quirks
+below apply. The bot token (`app_token`) carries channel
 scopes: `channels:read`, `groups:read`, `channels:manage`, `groups:write`,
 `channels:join`. Hard-won quirks — don't rediscover them:
 
-- **Grid needs `team_id`** on `conversations.list` and `conversations.create`
+- **Enterprise+ needs `team_id`** on `conversations.list` and `conversations.create`
   (else `missing_argument`). `scripts/channel_admin.py` auto-discovers it from a
   persona token; reuse that helper rather than hard-coding.
 - **Archive/invite require bot membership**, even for PUBLIC channels
@@ -81,7 +82,7 @@ scopes: `channels:read`, `groups:read`, `channels:manage`, `groups:write`,
   `channel_admin.persona_user_id`).
 - After the user saves the bot token (SETUP Step 9) or rotates it, run `.venv/bin/python scripts/check_bot_token.py` to
   confirm the token installed to the RIGHT org (a reinstall can silently land
-  in the wrong Grid org → `team_access_not_granted`). To make that check
+  in the wrong Enterprise+ org → `team_access_not_granted`). To make that check
   assert a specific org, set `EXPECTED_ENTERPRISE_ID` (and optionally
   `CHECK_CHANNEL`) in the environment first; without them the script just
   reports what it sees.
