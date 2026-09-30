@@ -14,8 +14,8 @@ how to install and implement this project.
 - **Beyond setup, point at `USING_CLAUDE.md`.** It's the end-to-end guide for
   driving demos: building content in plain English, packaging repeat flows into
   a reusable skill (`~/.claude/skills/<name>/SKILL.md`), and scheduling that
-  skill headless via `claude -p "<trigger>"` (launchd/cron) for a recurring
-  refresh. A sanitized skill template lives at
+  skill for a recurring refresh (see "Scheduling a skill" below; that guide
+  deliberately leaves the mechanics to you). A sanitized skill template lives at
   `skills/demo-refresh/SKILL.md` — offer to copy it into
   `~/.claude/skills/` and fill in the user's org specifics when they want a
   repeatable or scheduled refresh.
@@ -72,8 +72,9 @@ scopes: `channels:read`, `groups:read`, `channels:manage`, `groups:write`,
 - **Archive/invite require bot membership**, even for PUBLIC channels
   (`not_in_channel` otherwise). Bot self-joins public via `channels:join`;
   PRIVATE channels need a manual `/invite` of the bot.
-- **Bot has no `users:read.email`** — resolve persona email→id via each
-  persona's own token `auth.test` (see `channel_admin.persona_user_id`).
+- **Older bot installs may lack `users:read.email`** — resolve persona
+  email→id via each persona's own token `auth.test` (see
+  `channel_admin.persona_user_id`).
 - After any bot-token rotation, run `.venv/bin/python scripts/check_bot_token.py` to
   confirm the token installed to the RIGHT org (a reinstall can silently land
   in the wrong Grid org → `team_access_not_granted`). To make that check
@@ -83,6 +84,37 @@ scopes: `channels:read`, `groups:read`, `channels:manage`, `groups:write`,
 
 Toolbox: `scripts/channel_admin.py` (CLI + library), `scripts/preflight.py` (validate configs
 + heal membership before sending), `scripts/archive_channel.py`, `scripts/check_bot_token.py`.
+
+## Scheduling a skill
+
+When the user asks to schedule a skill (e.g. "run my demo refresh every Monday
+at 7am"), you set it up. Don't hand them plist/cron files to write. Use the OS's
+built-in scheduler, so nothing needs to be installed.
+
+1. **Confirm the skill works by hand first.** If it hasn't been run
+   successfully, run it (or ask them to) before scheduling.
+2. **Build the headless command** and run it once yourself to prove it works
+   in a fresh shell:
+   ```bash
+   cd /abs/path/to/slack-demo-generator && \
+     /abs/path/to/claude -p "<trigger phrase>" --allowedTools "Bash" >> "$HOME/demo-refresh.log" 2>&1
+   ```
+   `--allowedTools "Bash"` is required: headless runs can't answer permission
+   prompts, so without it every script call is denied and the run silently
+   does nothing. (`--permission-mode acceptEdits` is NOT enough; it only
+   covers file edits.) Use absolute paths (`which claude`).
+3. **macOS: create a launchd agent** at
+   `~/Library/LaunchAgents/com.<user>.demo-refresh.plist` that runs
+   `/bin/zsh -lc "<command above>"` with a `StartCalendarInterval`
+   (Weekday 1 = Monday, Hour, Minute), then `launchctl load` it. Prefer launchd
+   over cron on macOS: it runs a missed job once the Mac wakes.
+   **Linux:** add a `crontab` line (e.g. `0 7 * * 1 <command>`).
+4. **PATH is minimal** under launchd/cron. If the skill runs `sf`, it needs
+   `export PATH="/opt/homebrew/bin:$PATH"` (Homebrew) so `sf` finds `node`.
+5. Tell the user in plain language what you set up, when it runs, where the
+   log is, and how to turn it off (ask you, or
+   `launchctl unload <plist>` / remove the crontab line). If they ask
+   "did it work?", read the log.
 
 ## Critical OAuth gotcha
 
