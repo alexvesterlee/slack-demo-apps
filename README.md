@@ -8,7 +8,7 @@ agent (Claude Code); it turns each request into the right API calls.
 Once set up, you can:
 
 - **Post messages, threads, and DMs as real personas** (an AE, a CSM, a
-  customer contact) using each person's own token — so content carries their
+  customer contact) using each person's own user token — so content carries their
   real name and avatar, not a bot's.
 - **Share files** (draft contracts, decks, PDFs) in-channel as a persona.
 - **Post app-style notification cards** — a PagerDuty alert, a Salesforce
