@@ -379,8 +379,24 @@ You need to watch it live and have the window stay open.)
 For each user you want to impersonate (e.g., an AE persona, a customer
 persona, a deal-desk persona):
 
+**1. First, sign in as that persona.** Open an **incognito** browser window, go
+to **DemoZone**, and sign in to your demo org as the fictitious user you're
+capturing. Stay signed in. When the OAuth page opens in the next step, Slack
+asks *that* signed-in user to approve, so this is how the token ends up
+belonging to the persona and not to you.
+
+Demo org users have email addresses in this format:
+
+```
+demoeng+jennifer_hynes_12345@slack-corp.com
+```
+
+(The persona's name, then a number unique to your demo org.)
+
+**2. Then run the script with that persona's email:**
+
 ```bash
-python -u scripts/auth_user.py --email persona@yourorg.com
+python -u scripts/auth_user.py --email demoeng+jennifer_hynes_12345@slack-corp.com
 ```
 
 > ⚠ Use `python -u` (unbuffered) so the OAuth URL prints **before** the
@@ -388,10 +404,12 @@ python -u scripts/auth_user.py --email persona@yourorg.com
 
 The script will print an OAuth URL. **STOP** — read this carefully:
 
-> ⚠ **Critical: open the URL in an INCOGNITO window** logged in as the
-> target persona. Do NOT use your default browser if you're logged in there
-> as a different user (e.g., your admin account). If you do, Slack will
-> silently grant the wrong user's token.
+**3. Paste the URL into the same incognito window** where you're signed in as
+the persona, then click **Allow**.
+
+> ⚠ **Critical:** do NOT approve it in your normal browser if you're signed in
+> there as someone else (e.g., your own admin account). Slack will silently
+> grant *that* user's token instead of the persona's.
 
 > ℹ The script also tries to open your default browser as a convenience —
 > ignore that tab if it goes to the wrong account.
