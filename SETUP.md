@@ -372,10 +372,10 @@ tokens.)
 
 ## Step 6 — Capture user tokens (~5 users recommended)
 
-> ## ⭐ We recommend repeating this for at least ~5 users
+> ## ⭐ I recommend repeating this for at least ~5 users
 >
 > Every user you capture here is someone Claude can post as. Demo
-> conversations usually need several people, so we recommend capturing
+> conversations usually need several people, so I recommend capturing
 > **at least ~5 users** before moving on. You'll decide who they are (names, titles, roles) later, demo
 > by demo. Right now you just need the tokens.
 
@@ -448,36 +448,24 @@ In Claude Code, Claude can run this and read the output back to you.
 
 ---
 
-## Step 8 — Post your first content (as a persona)
+## Step 8 — Post your first message
 
-The simplest content is a message or DM sent as one of your personas. Every
-human message goes out through that **persona's own token** — never the bot.
+Test it out by asking Claude to send a message as one of the users you captured. In
+your Claude window, say something like:
 
-1. Copy the example config:
-   ```bash
-   cp examples/send_messages.example.json my_demo.json
-   ```
-2. Edit `my_demo.json` — set `sender_email` (one of your captured personas)
-   and the recipient / channel. In Claude Code, ask Claude to open and edit it.
-3. Send:
-   ```bash
-   python scripts/send_dms_as_users.py --config my_demo.json --manifest sent.json
-   ```
-4. Confirm it appears in Slack.
+> "Send a DM from demoeng+jennifer_hynes_12345@slack-corp.com to
+> demoeng+john_smith_12345@slack-corp.com saying hi and asking if they're
+> free for a call tomorrow."
 
-**Threads** work the same way — see `scripts/send_thread.py` for a parent
-message plus threaded replies from different personas.
+Claude sends it as that user, so it shows up in Slack with their name and
+photo. Check Slack to confirm it arrived.
 
-> ℹ **Manifest = your undo button.** Everything sent as a persona is appended
-> to `sent.json`. To clean up:
-> ```bash
-> python scripts/delete_dms.py --manifest sent.json
-> ```
-> (User tokens can only delete their *own* messages, so the manifest records
-> which persona sent each one.)
+From here you can ask for anything: channel messages, threads with replies from
+several users, back-and-forth DMs. See [USING_CLAUDE.md](USING_CLAUDE.md) for
+more examples.
 
-> ℹ **Convention:** thread-opener messages start with a 🧵 emoji so it's
-> obvious at a glance which message roots a thread.
+> ℹ **Cleaning up is easy.** Claude keeps a list of everything it sends. When
+> you're done, say *"delete everything we posted"* and it removes it all.
 
 ---
 

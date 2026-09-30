@@ -40,6 +40,10 @@ how to install and implement this project.
   edit it for the user's demo, then run
   `python scripts/send_dms_as_users.py --config <file> --manifest sent.json`.
   Keep the manifest — it's how `scripts/delete_dms.py` knows what to remove later.
+  When the user just asks in plain English ("send a DM from X to Y"), do all
+  of this for them. They shouldn't have to edit configs or run commands.
+- **Thread openers start with 🧵.** Any parent message that kicks off a thread
+  begins with the 🧵 emoji so it's easy to spot. Replies don't.
 
 ## What you must NOT do
 
