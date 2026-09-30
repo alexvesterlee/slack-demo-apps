@@ -110,7 +110,8 @@ directly instead of activating.
 ## Step 1 — Create the Slack app (from a manifest)
 
 A manifest creates the app with every setting the toolkit needs already filled
-in: the redirect URL plus all user and bot scopes. You don't toggle anything by hand.
+in: the redirect URL plus a broad set of user and bot scopes (including ones
+for future demos). You don't toggle anything by hand.
 
 1. Go to https://api.slack.com/apps → **Create New App** → **From a manifest**.
 2. Pick your demo workspace → **Next**.
@@ -142,7 +143,20 @@ in: the redirect URL plus all user and bot scopes. You don't toggle anything by 
            "groups:write",
            "im:write",
            "mpim:write",
-           "users:write"
+           "users:write",
+           "admin.dlp:write",
+           "admin",
+           "admin.analytics:read",
+           "admin.app_activities:read",
+           "admin.apps:read",
+           "admin.apps:write",
+           "admin.barriers:write",
+           "admin.conversations:read",
+           "admin.conversations:write",
+           "admin.users:write",
+           "admin.workflows:read",
+           "admin.workflows:write",
+           "workflows.templates:write"
          ],
          "bot": [
            "chat:write",
@@ -171,7 +185,25 @@ in: the redirect URL plus all user and bot scopes. You don't toggle anything by 
            "canvases:write",
            "lists:write",
            "team:read",
-           "emoji:read"
+           "emoji:read",
+           "links:write",
+           "assistant:write",
+           "calls:write",
+           "im:read",
+           "im:write.topic",
+           "mcp:connect",
+           "metadata.message:read",
+           "mpim:history",
+           "reactions:read",
+           "search:read.public",
+           "search:read.users",
+           "triggers:read",
+           "triggers:write",
+           "users:write",
+           "workflow.steps:execute",
+           "workflows.templates:read",
+           "workflows.templates:write",
+           "remote_files:write"
          ]
        }
      },
@@ -224,6 +256,8 @@ the manifest):
 | `channels:write`, `groups:write` | Persona-level channel actions |
 | `im:write`, `mpim:write` | Open DMs / group DMs as the persona |
 | `users:write` | Set the persona's presence (show as active during a demo) |
+| `workflows.templates:write` | Create Workflow Builder templates as the persona |
+| `admin`, `admin.*` | Org admin APIs: users, conversations, apps, workflows, barriers, DLP, analytics. Only work for a persona who is an org admin/owner |
 
 **Bot Token Scopes** (app notifications, channel admin, strict verification):
 
@@ -244,26 +278,37 @@ the manifest):
 | `reactions:write`, `pins:write`, `bookmarks:write` | Add reactions, pin messages, add channel bookmarks |
 | `canvases:read`, `canvases:write`, `lists:write` | Create and edit channel canvases and Lists |
 | `team:read`, `emoji:read` | Read workspace info and custom emoji |
+| `im:read`, `im:write.topic`, `mpim:history` | Read DMs, set DM topics, read group DM history |
+| `reactions:read`, `metadata.message:read` | Read reactions and message metadata |
+| `search:read.public`, `search:read.users` | Search public messages and users |
+| `users:write` | Set the bot's presence |
+| `links:write` | Custom link unfurls (needs unfurl domains configured) |
+| `assistant:write` | Agents & Assistants (needs that feature turned on) |
+| `workflow.steps:execute`, `triggers:read`, `triggers:write`, `workflows.templates:read`, `workflows.templates:write` | Workflow Builder steps, triggers and templates |
+| `calls:write`, `remote_files:write`, `mcp:connect` | Calls, remote files, MCP connections |
 
-Not every scope has a ready-made script. Some (canvases, Lists, bookmarks,
-pins) are there so Claude can do those things on request without you having
-to reinstall the app first.
+Not every scope has a ready-made script. Most are there so Claude can do those
+things on request without you having to reinstall the app first.
+
+> ⚠ **About the `admin` scopes:** a user token only gets real admin power if
+> the persona who authorizes it is an org admin or owner, and on Enterprise
+> Grid an admin may need to approve the app before it installs. `auth_user.py`
+> doesn't request them by default. To use them for a persona, add them to
+> `USER_SCOPES` (see below). Treat any token that has them like an admin
+> password.
 
 </details>
 
 > ℹ **You can add more scopes later.** This manifest covers what the toolkit
-> uses plus a few common extras. If a specific demo needs more, such as
-> Workflow Builder steps, Agents & Assistants, custom link unfurls, or admin
-> APIs, add them anytime:
+> uses plus a broad set of extras. If a specific demo needs something that
+> isn't listed, add it anytime:
 > 1. In the app settings, open **App Manifest** (or **OAuth & Permissions**)
 >    and add the scope.
 > 2. **Reinstall** the app so the bot token picks it up.
 > 3. For a **user** (persona) scope, also add it to `USER_SCOPES` in
 >    `scripts/auth_user.py` and re-run `scripts/auth_user.py` for each persona.
 >    Scopes are baked into a token when it's captured.
->
-> Only add what you'll use. Admin scopes (`admin.*`) in particular let a
-> token act on the whole org, and a leaked token would carry that power.
+
 
 ---
 
