@@ -36,20 +36,33 @@ def _client() -> WebClient:
 
 
 def _workspace_team_id() -> str | None:
-    """Discover the persona workspace's team_id from a persona token.
+    """Discover the real workspace team id (T...) for Grid conversations.list.
 
-    On Enterprise Grid an org-level bot token spans multiple workspaces, so
-    conversations.list requires an explicit team_id. The personas live in the
-    workspace we care about, so borrow the team_id from any persona's auth.test.
+    On this enterprise-install org a persona's auth.test returns the *enterprise*
+    id (E...), not a workspace id — passing that to conversations.list fails with
+    `team_access_not_granted`. Ask the bot token for its workspace via
+    auth.teams.list and return the first T... id; only fall back to a persona
+    auth.test that yields a workspace (T...) id.
     """
+    # Preferred: the bot's own workspace list (returns the T... workspace id).
+    try:
+        resp = _client().api_call("auth.teams.list")
+        for t in resp.get("teams") or []:
+            tid = t.get("id", "")
+            if tid.startswith("T"):
+                return tid
+    except SlackApiError:
+        pass
+
+    # Fallback: persona auth.test, accepting only a workspace (T...) id.
     users = load_tokens().get("users", {})
     for email, tok in users.items():
         if email.startswith("_"):
             continue
         try:
-            resp = WebClient(token=tok).auth_test()
-            if resp.get("team_id"):
-                return resp["team_id"]
+            tid = WebClient(token=tok).auth_test().get("team_id", "")
+            if tid.startswith("T"):
+                return tid
         except SlackApiError:
             continue
     return None

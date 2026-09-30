@@ -1,0 +1,56 @@
+{
+  "app": "DocuSign",
+  "fake_bot_id": "DocuSign",
+  "notes": "DocuSign envelope notifications. Serialize an example's `blocks` array into an action's `text` field. Common in contract/renewal account channels — often paired with a human follow-up in a thread.",
+  "examples": [
+    {
+      "name": "envelope_sent",
+      "when": "A contract/agreement is sent for signature.",
+      "blocks": [
+        { "type": "header", "text": { "type": "plain_text", "text": "✍️ Envelope Sent for Signature", "emoji": true } },
+        { "type": "section", "fields": [
+          { "type": "mrkdwn", "text": "*Document:*\nAcme Corp — Renewal Agreement" },
+          { "type": "mrkdwn", "text": "*Recipient:*\nadam@acmecorp.com" },
+          { "type": "mrkdwn", "text": "*Status:*\nSent" },
+          { "type": "mrkdwn", "text": "*Expires:*\n2026-07-15" }
+        ] },
+        { "type": "context", "elements": [
+          { "type": "mrkdwn", "text": "Envelope ID e1f2a3b4 · Sent by Jennifer Hynes" }
+        ] }
+      ]
+    },
+    {
+      "name": "envelope_completed",
+      "when": "All signers have completed — agreement is executed.",
+      "blocks": [
+        { "type": "header", "text": { "type": "plain_text", "text": "✅ Envelope Completed", "emoji": true } },
+        { "type": "section", "fields": [
+          { "type": "mrkdwn", "text": "*Document:*\nAcme Corp — Renewal Agreement" },
+          { "type": "mrkdwn", "text": "*Status:*\nCompleted" },
+          { "type": "mrkdwn", "text": "*Signed by:*\nAdam Wexler" },
+          { "type": "mrkdwn", "text": "*Completed:*\n2026-07-02" }
+        ] },
+        { "type": "context", "elements": [
+          { "type": "mrkdwn", "text": "Envelope ID e1f2a3b4 · All parties signed" }
+        ] }
+      ]
+    },
+    {
+      "name": "verde_welo_sent",
+      "when": "The Welo Guard 2-yr order form is sent to Verde Group for signature (SFDC opp 'Verde, Inc - Welo Guard - 2yr - 120k', Proposal/Quote).",
+      "blocks": [
+        { "type": "header", "text": { "type": "plain_text", "text": "✍️ Envelope Sent for Signature", "emoji": true } },
+        { "type": "section", "fields": [
+          { "type": "mrkdwn", "text": "*Document:*\nVerde Group — Welo Guard Order Form (2-Year)" },
+          { "type": "mrkdwn", "text": "*Recipient:*\nJack Strickland (CFO)" },
+          { "type": "mrkdwn", "text": "*Status:*\nSent — awaiting signature" },
+          { "type": "mrkdwn", "text": "*Expires:*\n2026-10-05" }
+        ] },
+        { "type": "section", "text": { "type": "mrkdwn", "text": "*Total contract value:* $120,000 · 24-month term" } },
+        { "type": "context", "elements": [
+          { "type": "mrkdwn", "text": "Envelope ID 7c1a-9f42 · Sent by Alex Lee" }
+        ] }
+      ]
+    }
+  ]
+}

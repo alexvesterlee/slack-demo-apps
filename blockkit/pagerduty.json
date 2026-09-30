@@ -1,0 +1,488 @@
+{
+  "app": "PagerDuty",
+  "fake_bot_id": "PagerDuty",
+  "notes": "PagerDuty incident notifications, matched to the REAL Slack app layout (verified against a live PagerDuty message 2026-08). Fidelity rules: (1) the title is a status-emoji + a bold mrkdwn LINK in a `section` \u2014 NOT a `header` block; (2) fields are a single-column `*Label:* value` list in one mrkdwn section (Assigned / Type / Service / Urgency), not a two-column fields[] grid; (3) an `actions` row of real buttons \u2014 Resolve, Acknowledge, Add a Note \u2014 plus a trailing `static_select` placeholder 'More actions'; (4) a `context` footer like 'Dedicated incident channel created by <person> | <date>'. Urgency shows an \u2191/\u2193 arrow. Pair the Triggered card with a Resolved card. Post as the PagerDuty app via chat:write.customize with icon_url = <LOGO_BASE>/pagerduty.png.",
+  "examples": [
+    {
+      "name": "incident_triggered",
+      "when": "A monitor/alert opens an incident and pages the on-call; posted to a dedicated incident channel.",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":large_yellow_circle:  *<https://pagerduty.com|Welo Guard App taking too long to load>*"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*Assigned:* <https://pagerduty.com|Jennifer Hynes>\n*Type:* Base Incident\n*Service:* <https://pagerduty.com|Welo Guard>\n*Urgency:* \u2191 High"
+          }
+        },
+        {
+          "type": "actions",
+          "elements": [
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Resolve",
+                "emoji": true
+              },
+              "action_id": "pd_resolve",
+              "value": "resolve"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Acknowledge",
+                "emoji": true
+              },
+              "action_id": "pd_ack",
+              "value": "ack"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Add a Note",
+                "emoji": true
+              },
+              "action_id": "pd_note",
+              "value": "note"
+            },
+            {
+              "type": "static_select",
+              "placeholder": {
+                "type": "plain_text",
+                "text": "More actions",
+                "emoji": true
+              },
+              "action_id": "pd_more",
+              "options": [
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Reassign"
+                  },
+                  "value": "reassign"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Change urgency"
+                  },
+                  "value": "urgency"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Run a response play"
+                  },
+                  "value": "response_play"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "View in PagerDuty"
+                  },
+                  "value": "view"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "Dedicated incident channel created by <https://pagerduty.com|Jennifer Hynes> (@Pav) | October 21st, 2025 at 11:29 AM"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "incident_resolved",
+      "when": "The incident is resolved; shows who resolved it and MTTR.",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":white_check_mark:  *<https://pagerduty.com|Welo Guard App taking too long to load>*"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*Status:* Resolved\n*Service:* <https://pagerduty.com|Welo Guard>\n*Resolved by:* <https://pagerduty.com|Jennifer Hynes>\n*Time to resolve:* 22 min"
+          }
+        },
+        {
+          "type": "actions",
+          "elements": [
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Add a Note",
+                "emoji": true
+              },
+              "action_id": "pd_note",
+              "value": "note"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "View postmortem",
+                "emoji": true
+              },
+              "url": "https://pagerduty.com",
+              "action_id": "pd_pm"
+            },
+            {
+              "type": "static_select",
+              "placeholder": {
+                "type": "plain_text",
+                "text": "More actions",
+                "emoji": true
+              },
+              "action_id": "pd_more",
+              "options": [
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Reopen incident"
+                  },
+                  "value": "reopen"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "View in PagerDuty"
+                  },
+                  "value": "view"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "Resolved by <https://pagerduty.com|Jennifer Hynes> | October 21st, 2025 at 11:51 AM"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "miro_software_request",
+      "when": "A user files a software-access/license request (Miro) that pages the IT on-call in #help-it.",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":large_blue_circle:  *<https://pagerduty.com|Software access request \u2014 Miro>*"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*Requested by:* <https://pagerduty.com|James Cox>\n*Type:* Service Request \u2014 Software License\n*Service:* <https://pagerduty.com|IT Helpdesk>\n*Urgency:* \u2193 Low"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "Requesting a *Miro* license (collaborative whiteboard) for upcoming design & planning workshops. Please provision access or advise on the approval workflow."
+          }
+        },
+        {
+          "type": "actions",
+          "elements": [
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Resolve",
+                "emoji": true
+              },
+              "action_id": "pd_resolve",
+              "value": "resolve"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Acknowledge",
+                "emoji": true
+              },
+              "action_id": "pd_ack",
+              "value": "ack"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Add a Note",
+                "emoji": true
+              },
+              "action_id": "pd_note",
+              "value": "note"
+            },
+            {
+              "type": "static_select",
+              "placeholder": {
+                "type": "plain_text",
+                "text": "More actions",
+                "emoji": true
+              },
+              "action_id": "pd_more",
+              "options": [
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Reassign"
+                  },
+                  "value": "reassign"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Change urgency"
+                  },
+                  "value": "urgency"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Run a response play"
+                  },
+                  "value": "response_play"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "View in PagerDuty"
+                  },
+                  "value": "view"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "Dedicated request channel created by <https://pagerduty.com|James Cox> | September 17th, 2026 at 9:14 AM"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "omega_critical_incident",
+      "when": "A P1/critical incident on the Omega, Inc. production environment pages the on-call; surfaced in the #omega-inc account channel so the account team has real-time visibility.",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":red_circle:  *<https://pagerduty.com|[P1] Omega Production \u2014 API 5xx surge & login failures>*"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*Assigned:* <https://pagerduty.com|Priya Natarajan> (SRE on-call)\n*Type:* Critical Incident \u2014 P1\n*Service:* <https://pagerduty.com|Omega Production Platform>\n*Urgency:* \u2191 High"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "Automated checks are reporting a *sustained 5xx error rate above 40%* on the Omega production API, with customer logins failing across all regions. Impact began ~09:06 PT. Incident bridge open; account team looped in given active renewal."
+          }
+        },
+        {
+          "type": "actions",
+          "elements": [
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Resolve",
+                "emoji": true
+              },
+              "action_id": "pd_resolve",
+              "value": "resolve"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Acknowledge",
+                "emoji": true
+              },
+              "action_id": "pd_ack",
+              "value": "ack"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Add a Note",
+                "emoji": true
+              },
+              "action_id": "pd_note",
+              "value": "note"
+            },
+            {
+              "type": "static_select",
+              "placeholder": {
+                "type": "plain_text",
+                "text": "More actions",
+                "emoji": true
+              },
+              "action_id": "pd_more",
+              "options": [
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Reassign"
+                  },
+                  "value": "reassign"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Change urgency"
+                  },
+                  "value": "urgency"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Run a response play"
+                  },
+                  "value": "response_play"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "View in PagerDuty"
+                  },
+                  "value": "view"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "Dedicated incident channel created by <https://pagerduty.com|Priya Natarajan> | September 29th, 2026 at 9:11 AM"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "verde_alex_ai_resolved",
+      "when": "The #2847 Alex AI Bot SEV-1 is mitigated (rollback complete); PagerDuty auto-resolves the incident for visibility in the incident channel.",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":white_check_mark:  *<https://pagerduty.com|[INC-2847] Alex AI Bot \u2014 not responding / 503s from auth service>*"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*Status:* Resolved\n*Service:* <https://pagerduty.com|Alex AI Bot \u2014 Production>\n*Resolved by:* <https://pagerduty.com|Adam Watson>\n*Root cause:* Memory leak in AI service container (8 AM deploy) \u2014 rolled back v2.4.1 \u2192 v2.3.8\n*Time to resolve:* 12 min"
+          }
+        },
+        {
+          "type": "actions",
+          "elements": [
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Add a Note",
+                "emoji": true
+              },
+              "action_id": "pd_note",
+              "value": "note"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "View postmortem",
+                "emoji": true
+              },
+              "url": "https://pagerduty.com",
+              "action_id": "pd_pm"
+            },
+            {
+              "type": "static_select",
+              "placeholder": {
+                "type": "plain_text",
+                "text": "More actions",
+                "emoji": true
+              },
+              "action_id": "pd_more",
+              "options": [
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Reopen incident"
+                  },
+                  "value": "reopen"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "View in PagerDuty"
+                  },
+                  "value": "view"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "Resolved by <https://pagerduty.com|Adam Watson> | April 28th, 2025 at 8:54 AM CT"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

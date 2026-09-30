@@ -1,9 +1,29 @@
 # slack-demo-generator — Setup
 
-This toolkit lets you **send and delete DMs as real users** in your Slack
-demo org. Useful for seeding a "lived-in" inbox before a demo.
+This toolkit lets you **stage realistic, lived-in content in a Slack demo org**
+— as the real people, apps, and channels a customer would expect to see. You
+drive it in plain English through Claude Code; it turns each request into the
+right Slack (and, optionally, third-party) API calls.
 
-Setup is one-time, ~15 minutes.
+Once it's set up you can, for example:
+
+- **Post messages, threads, and DMs as real personas** (an AE, a CSM, a
+  customer contact) using each person's own token — so the messages carry
+  their real name and avatar, not a bot's.
+- **Share files** (draft contracts, decks, PDFs) in-channel as a persona.
+- **Post app-style notification cards** — a PagerDuty alert, a Salesforce
+  "deal won," a Jira update — as the third-party app, using Block Kit.
+- **Create and manage channels** (create / rename / set topic / archive).
+- **Ground the content in real data** by pulling from Salesforce, Jira, or any
+  other system through an MCP server, so the story stays internally consistent.
+- **Clean it all up afterward** from a manifest of everything you posted.
+
+Setup is one-time, ~15–20 minutes. You can do the minimum (personas + messages)
+first and add the optional pieces (app notifications, channel admin, MCP data)
+whenever you need them.
+
+> **New to this? Read the [architecture 101](#how-it-fits-together) at the
+> bottom first** — one diagram of how Claude, this folder, and Slack connect.
 
 ---
 
@@ -72,29 +92,73 @@ directly instead of activating.
   > bottom of this file. Every other command is identical.
 - **macOS, Linux, or Windows** — the toolkit generates its own OAuth cert
   using a pure-Python library, so you don't need `openssl` installed.
+- **(Optional) A GitHub account + a fine-grained PAT** — only if you want to
+  post app-style notification cards. Logos and Block Kit templates are served
+  from a public GitHub repo (Slack needs a public URL for a custom app icon).
+  See [Step 10](#step-10-optional--app-style-notifications).
+- **(Optional) MCP servers** — only if you want to ground content in real data
+  (Salesforce, Jira/Atlassian, ServiceNow, …). Configured in Claude Code, not
+  here. See [Step 11](#step-11-optional--ground-content-in-real-data-mcp).
 
 ---
 
 ## Step 1 — Create the Slack app
 
 1. Go to https://api.slack.com/apps → **Create New App** → **From scratch**.
-2. Name it anything (e.g., `Demo DM Helper`). Pick your demo workspace.
+2. Name it anything (e.g., `Demo Content Helper`). Pick your demo workspace.
+
+> One app carries **both** kinds of token you'll use: **User tokens**
+> (`xoxp-`, one per persona — these post as real people) and a single **Bot
+> token** (`xoxb-` — this posts app notifications, manages channels, and does
+> strict verification). You add scopes for each below.
 
 ---
 
-## Step 2 — Configure OAuth
+## Step 2 — Configure OAuth scopes
 
-1. In the app settings, go to **OAuth & Permissions**.
-2. Under **Redirect URLs**, add:
+In the app settings, go to **OAuth & Permissions**.
+
+1. Under **Redirect URLs**, add:
    ```
    https://localhost:3000/oauth/callback
    ```
    > ⚠ **Must be `https://`** — Slack rejects `http://localhost`. The toolkit
    > generates a self-signed cert for this on first run.
-3. Under **User Token Scopes**, add `chat:write`.
-   > ℹ `chat:write` is sufficient for both DM **send** and DM **delete**.
-   > You don't need `im:read` or `im:write` (counterintuitive but true).
-4. Save changes.
+
+2. Under **User Token Scopes**, add the scopes for the persona actions you want.
+   These are what `auth_user.py` requests when it captures a persona token
+   (see `USER_SCOPES` in that file — keep the two in sync):
+
+   | Scope | Enables |
+   |---|---|
+   | `chat:write` | Post & delete messages/DMs/threads as the persona (**required**) |
+   | `users.profile:read` | Read the persona's profile (used in verification) |
+   | `users.profile:write` | Set the persona's display name / status |
+   | `files:write` | Upload files (contracts, decks, PDFs) as the persona |
+   | `reactions:write` | Add emoji reactions as the persona |
+   | `channels:write`, `groups:write` | Persona-level channel actions |
+   | `im:write`, `mpim:write` | Open DMs / group DMs as the persona |
+
+   > ℹ **Minimum viable:** just `chat:write` gets you send + delete of
+   > messages and DMs. Add the rest as your demos need them. **Scopes are
+   > baked into a token at capture time** — if you add a scope later, you must
+   > re-run `auth_user.py` for that persona to pick it up.
+
+3. (For app notifications, channel admin, and strict verification) Under **Bot
+   Token Scopes**, add:
+
+   | Scope | Enables |
+   |---|---|
+   | `chat:write` | Bot posts (app notification cards) |
+   | `chat:write.customize` | Post those cards under a **custom name + icon** (e.g. "PagerDuty") |
+   | `chat:write.public` | Post to public channels the bot hasn't joined |
+   | `users:read.email` | Strict persona verification (email → user ID) |
+   | `channels:read`, `groups:read` | List/resolve channels |
+   | `channels:manage`, `groups:write` | Create / rename / set topic / archive channels |
+   | `channels:join` | Bot self-joins public channels (needed before archiving/inviting) |
+
+4. Save changes, then **Install** (or reinstall) the app to your workspace so
+   the scopes take effect.
 
 ---
 
@@ -152,7 +216,7 @@ tokens.)
 
 > ⚠ **Never paste tokens into a chat with Claude Code.** Always use the
 > local scripts (`auth_user.py` for user tokens, `save_bot_token.py` for the
-> optional bot token). Pasting tokens into chat re-leaks them.
+> bot token). Pasting tokens into chat re-leaks them.
 
 ---
 
@@ -162,7 +226,7 @@ tokens.)
 (The script prints a URL, then waits for your browser to complete OAuth.
 You need to watch it live and have the window stay open.)
 
-For each user you want to impersonate (e.g., a CRO persona, a customer
+For each user you want to impersonate (e.g., an AE persona, a customer
 persona, a deal-desk persona):
 
 ```bash
@@ -194,7 +258,14 @@ After you authorize, the script:
 4. **Refuses to save** if those don't match — and tells you to retry in
    incognito.
 
-Repeat for every persona.
+Repeat for every persona. Each is stored under `users` in `tokens.json`,
+keyed by email.
+
+> ℹ **Which persona can do what depends on the scopes it was captured with.**
+> A persona captured with only `chat:write` can post messages but *not* upload
+> a file — you'll get `missing_scope needed=files:write:user`. Re-run
+> `auth_user.py` for that persona after widening `USER_SCOPES`, or pick a
+> persona that already has the scope for that role.
 
 ---
 
@@ -212,63 +283,140 @@ In Claude Code, Claude can run this and read the output back to you.
 
 ---
 
-## Step 8 — Send a test DM
+## Step 8 — Post your first content (as a persona)
 
-**[Claude Code]** (or Terminal — both commands here are non-interactive):
+The simplest content is a message or DM sent as one of your personas. Every
+human message goes out through that **persona's own token** — never the bot.
 
 1. Copy the example config:
    ```bash
    cp examples/send_messages.example.json my_demo.json
    ```
-2. Edit `my_demo.json` — replace the `sender_email` (must be one of your
-   captured personas) and `recipient_user_id` (the Slack user ID of who
-   should receive the DM). In Claude Code, you can ask Claude to open and
-   edit the file for you.
+2. Edit `my_demo.json` — set `sender_email` (one of your captured personas)
+   and the recipient / channel. In Claude Code, ask Claude to open and edit it.
 3. Send:
    ```bash
    python examples/send_dms_as_users.py --config my_demo.json --manifest sent.json
    ```
-4. Confirm the DM appears in the recipient's Slack.
+4. Confirm it appears in Slack.
 
-To clean up:
-```bash
-python examples/delete_dms.py --manifest sent.json
-```
+**Threads** work the same way — see `examples/send_thread.py` for a parent
+message plus threaded replies from different personas.
+
+> ℹ **Manifest = your undo button.** Everything sent as a persona is appended
+> to `sent.json`. To clean up:
+> ```bash
+> python examples/delete_dms.py --manifest sent.json
+> ```
+> (User tokens can only delete their *own* messages, so the manifest records
+> which persona sent each one.)
+
+> ℹ **Convention:** thread-opener messages start with a 🧵 emoji so it's
+> obvious at a glance which message roots a thread.
 
 ---
 
-## Step 9 (optional) — Audit logging
+## Step 9 (optional) — Audit logging & channel management
 
-If you want every send/delete logged automatically to a Slack channel:
+The **bot token** unlocks two things at once: audit logging, and channel
+administration. (It also backs strict verification in Step 7 and app
+notifications in Step 10 — one bot token serves all of them.)
 
-1. Create a dedicated channel in your demo org (e.g., `#demo-audit-log`).
-   Right-click → **View channel details** → copy the channel ID at the
-   bottom (starts with `C`).
-2. In your existing Slack app, go to **OAuth & Permissions** → add **Bot
-   Token Scopes**: `chat:write`, `chat:write.public`, `users:read.email`.
-   > ℹ `users:read.email` is what `auth_user.py` and `verify_setup.py` use
-   > for strict persona verification (they look up the email you passed
-   > with `--email` and confirm it matches the captured token). Without
-   > this scope, you'll see a `missing_scope` error during verification.
-3. Reinstall the app. Copy the new **Bot User OAuth Token** (`xoxb-...`)
-   from the **Install App** page.
+1. Make sure the **Bot Token Scopes** from [Step 2](#step-2-configure-oauth-scopes)
+   are added and the app is (re)installed.
+2. Copy the **Bot User OAuth Token** (`xoxb-...`) from the app's **Install
+   App** page.
    > ℹ Reinstalling the app does **not** invalidate already-captured
    > `xoxp-` user tokens.
-4. **[Terminal]** — run this in a dedicated Terminal window (the script
-   uses a hidden paste prompt and a `y/N` confirm, which Claude Code's
-   runner can't drive):
+3. **[Terminal]** — save it (hidden paste prompt + `y/N` confirm, which Claude
+   Code's runner can't drive):
    ```bash
    python save_bot_token.py
    ```
    Paste the `xoxb-` when prompted. **Your keystrokes won't appear on
-   screen — that's intentional (`getpass` hides them so tokens don't show
-   up in scrollback). Just paste and press Enter.**
-5. Open `tokens.json` and set `audit_channel_id` to the channel ID from
-   step 1.
-6. **[Claude Code]** Re-run `python verify_setup.py` — you should now see
-   audit logging green.
+   screen — that's intentional (`getpass` hides them). Just paste and Enter.**
+4. **[Claude Code]** Confirm the token landed in the right workspace:
+   ```bash
+   python check_bot_token.py
+   ```
+5. **(Audit logging)** Create a channel (e.g. `#demo-audit-log`), copy its
+   channel ID (starts with `C`), and set `audit_channel_id` in `tokens.json`.
+   Every persona send/delete then logs there automatically. If you skip this,
+   audit logging silently no-ops — the toolkit still works.
+6. **(Channel management)** With the bot token saved, `channel_admin.py`
+   can resolve / create / rename / set-topic / archive channels:
+   ```bash
+   python channel_admin.py --help
+   ```
+   Use `preflight.py` before a big send to validate a config and heal channel
+   membership (invite the bot / personas where needed).
 
-If you don't do this, audit logging silently no-ops. The toolkit still works.
+> ⚠ **Enterprise Grid quirks** (if your demo org is Grid): channel `list`/
+> `create` calls need a `team_id` (auto-discovered by `channel_admin.py`);
+> archiving or inviting requires the bot to be a *member* of the channel even
+> when it's public; and the bot can only *see* public channels — a private
+> channel it hasn't been invited to reads as "not found," which is not the
+> same as missing. Don't create a duplicate.
+
+---
+
+## Step 10 (optional) — App-style notifications
+
+Post cards that look like they came from a third-party app — PagerDuty,
+Salesforce, Jira, Docusign, etc. These go out via the **bot token** using
+`chat:write.customize` (custom username + icon), so they carry the app's name
+and logo and an `APP` badge. (They are *not* recorded in `sent.json`; delete
+them manually with `chat.delete` if needed.)
+
+Two ingredients live in this repo:
+
+- `blockkit/<app>.json` — the card layout(s) for each app (Block Kit).
+- `logos/<app>.png` — the app icon.
+
+Slack needs a **public URL** for the custom icon, so logos and templates are
+served from a public GitHub repo via `raw.githubusercontent.com`. Publish new
+or changed assets with:
+
+```bash
+python push_logos.py       # uploads logos/*.png to the public repo
+python push_blockkit.py    # uploads blockkit/*.json to the public repo
+```
+
+> ⚠ These need a GitHub token. Provide it via the `GHT` environment variable
+> or the macOS Keychain — **never paste it into chat.** If Claude Code's
+> sandbox can't reach Keychain, run the push with the sandbox disabled.
+
+Then post a card:
+
+```bash
+python send_app_notification.py --app pagerduty --example <example_name> --channel <C...>
+```
+
+(`send_app_notification.py --help` lists apps and examples.) The card text can
+be grounded in real data — see Step 11.
+
+---
+
+## Step 11 (optional) — Ground content in real data (MCP)
+
+The most convincing demos reference data that actually exists. Claude Code can
+read that data through **MCP servers** and use it to write the message,
+contract, or card — so names, amounts, stages, and dates all line up.
+
+- **Salesforce** — e.g. pull an open opportunity's name, amount, stage, and
+  close date, then seed a deal-team thread that matches it exactly.
+- **Jira / Atlassian, ServiceNow, or any other MCP server** — reference a real
+  ticket or record so the notification card links to something that exists.
+
+MCP servers are configured in **Claude Code itself** (not in this repo). Once
+connected, just ask Claude in plain English — e.g. *"pull the open Omega
+renewal opp and write a thread about it in the Omega channel."* Claude queries
+the MCP server, then uses the persona and app-notification scripts above to
+post the result.
+
+> ℹ This is what keeps a demo internally consistent: the Slack story and the
+> CRM/ticketing data tell the *same* story because one was generated from the
+> other.
 
 ---
 
@@ -279,28 +427,49 @@ If you need to rotate (e.g., a token leaked):
 | Token | How to rotate |
 |---|---|
 | `client_secret` | Slack app → Basic Information → Regenerate. Update `tokens.json`. |
-| Bot `xoxb-` (audit) | Reinstall app → copy new token → `python save_bot_token.py`. |
+| Bot `xoxb-` | Reinstall app → copy new token → `python save_bot_token.py` → `python check_bot_token.py`. |
 | Persona `xoxp-` | Re-run `python -u auth_user.py --email persona@yourorg.com`. |
+| GitHub PAT (logos) | Regenerate in GitHub → update `GHT` env var / Keychain entry. |
 
 Reinstalling the app does **not** invalidate existing user (`xoxp-`) tokens.
 
 > ⚠ Never paste rotated tokens into a chat with Claude Code. Always use
-> the local scripts.
+> the local scripts / environment.
 
 ---
 
 ## File reference
 
+**Core setup & auth**
+
 | File | Purpose |
 |---|---|
-| `auth_user.py` | OAuth flow — captures one persona's `xoxp-` per run |
-| `save_bot_token.py` | Paste path for the optional audit-logging `xoxb-` token |
-| `verify_setup.py` | Diagnostic — confirms tokens.json is wired up correctly |
-| `config.py` | Shared helpers (token loading, audit_log) |
-| `examples/send_dms_as_users.py` | Send a list of DMs from different personas |
-| `examples/delete_dms.py` | Delete previously-sent DMs (uses probe-and-delete trick) |
+| `auth_user.py` | OAuth flow — captures one persona's `xoxp-` per run (scopes = `USER_SCOPES`) |
+| `save_bot_token.py` | Hidden paste path for the bot `xoxb-` token |
+| `check_bot_token.py` | Confirms the bot token installed to the right workspace/org |
+| `verify_setup.py` | Diagnostic — confirms `tokens.json` is wired up correctly |
+| `config.py` | Shared helpers: `user_client(email)`, bot client, `audit_log()` |
+| `preflight.py` | Validate a send config + heal channel membership before sending |
 | `tokens.example.json` | Template — copy to `tokens.json` and fill in |
 | `tokens.json` | Your real tokens (gitignored, never committed) |
+
+**Posting content**
+
+| File | Purpose |
+|---|---|
+| `examples/send_dms_as_users.py` | Send a list of messages/DMs from different personas |
+| `examples/send_thread.py` | Post a parent message + threaded replies as personas |
+| `examples/delete_dms.py` | Delete previously-sent persona messages (from the manifest) |
+| `channel_admin.py` | Resolve / create / rename / set-topic / archive channels (bot token) |
+| `archive_channel.py` | Convenience wrapper to archive a channel |
+| `send_app_notification.py` | Post an app-style Block Kit card as a third-party app (bot token) |
+| `blockkit/*.json` | Block Kit card layouts, one file per app |
+| `logos/*.png` | App icons for the cards |
+| `push_logos.py`, `push_blockkit.py` | Publish logos/templates to the public assets repo |
+
+> The various `seed_*.py`, `case_channels.py`, `*_thread.py`, and `*.json`
+> content files in the repo root are **example demo scenarios**, not part of
+> the toolkit — read them as recipes for building your own.
 
 ---
 
@@ -319,13 +488,29 @@ the target persona.
 **`auth_user.py` blocks before printing the URL** — You forgot the `-u`
 flag. Hit `Ctrl+C` and re-run as `python -u auth_user.py ...`.
 
+**`missing_scope needed=files:write:user`** (or another `:user` scope) — The
+persona's token was captured before that scope existed in `USER_SCOPES`. Add
+the scope in the Slack app, then re-run `auth_user.py` for that persona.
+
 **`chat.delete` returns `cant_delete_message`** — User tokens can only
 delete their own messages. Make sure the `sender_email` in the manifest
-matches the user that originally sent the DM.
+matches the user that originally sent the message.
 
-**`chat.postMessage` returns `not_in_channel`** — Only happens for channels,
-not DMs. If you see this for a DM, double-check the `recipient_user_id` is
-a user ID (starts with `U`), not a channel ID.
+**`chat.postMessage` / `conversations.archive` returns `not_in_channel`** —
+The bot isn't a member of that channel. It self-joins public channels via
+`channels:join`; for a private channel, `/invite` the bot manually first.
+
+**Bot channel calls return `missing_argument` (Enterprise Grid)** — Grid
+requires a `team_id` on `conversations.list`/`create`. Use `channel_admin.py`,
+which auto-discovers it.
+
+**`check_bot_token.py` / bot calls return `team_access_not_granted`** — A
+reinstall landed the bot token in the wrong Grid org. Reinstall to the correct
+org and re-save the token.
+
+**A private channel reads as "not found"** — The bot only sees public channels
+plus private ones it's been invited to. "Not found" ≠ "doesn't exist." Don't
+create a duplicate; invite the bot instead.
 
 **`'source' is not recognized as an internal or external command`** — You're
 on Windows. Use `.venv\Scripts\Activate.ps1` instead of
@@ -342,6 +527,37 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 during install. Easiest fix: reinstall from python.org and check **"Add
 python.exe to PATH"** on the first screen. Or use the Python launcher:
 replace `python` with `py` and `python3.12` with `py -3.12`.
+
+---
+
+## How it fits together
+
+The whole system is three parts, in one direction:
+
+```
+YOU  →  Claude Code (in your terminal)  →  the toolkit folder  →  Slack (+ optional data sources)
+```
+
+1. **You** type a plain-English request.
+2. **Claude Code** is the brain and the hands — it decides what to do, writes
+   and runs the small Python scripts in this folder, reads results, and fixes
+   things when a call fails.
+3. **The toolkit folder** (this repo) holds the scripts, your keys
+   (`tokens.json`), and the Block Kit templates. The scripts just translate a
+   request into API calls.
+4. Those calls go out two ways:
+   - **Direct API calls** (using your saved keys) to **Slack** — messages,
+     files, channel admin, app-notification cards — and to **GitHub**, which
+     hosts the logos + templates.
+   - **Through MCP servers** to **Salesforce, Jira, ServiceNow,** or anything
+     else — to read real data so the content stays authentic.
+
+That's why this runs in a **terminal / Claude Code**, not the Claude desktop
+app: it needs to run local scripts and hold local files (your tokens, the
+`.venv`). The desktop app can talk to MCP servers but can't run this folder's
+code or reach your local keys.
+
+See `architecture_slide.png` for the one-slide version of this.
 
 ---
 

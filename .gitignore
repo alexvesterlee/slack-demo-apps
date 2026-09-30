@@ -5,3 +5,12 @@ __pycache__/
 .DS_Store
 .venv/
 .certs/
+
+# Demo output & org-specific data — never publish (leaks persona emails,
+# channel IDs, timestamps, and generated assets from your demo org)
+sent.json
+*sent.json
+*_manifest.json
+*.pdf
+*.pptx
+.claude/

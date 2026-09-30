@@ -1,0 +1,484 @@
+{
+  "app": "Jira Cloud",
+  "fake_bot_id": "Jira",
+  "notes": "Jira Cloud for Slack issue notifications, matched to the REAL Slack app layout (verified against a live Jira Cloud message 2026-08). Fidelity rules: (1) the title is a bold mrkdwn LINK to the issue (`*<url|KEY-# Summary>*`) in a `section` \u2014 NOT a `header` block; (2) fields are inline in one mrkdwn line with small icons and bold values \u2014 `*Status:* In Progress  *Type:* Task  *Assignee:* <name>` then `*Priority:* Medium` \u2014 an \u2191/\u2193 arrow marks priority; (3) an `actions` row of real buttons \u2014 Assign, Change status, \u2728 AI Summarise \u2014 plus a trailing `static_select` placeholder 'More actions...'; (4) a small `context` footer 'Added by Jira Cloud'. Post as the Jira Cloud app via chat:write.customize with icon_url = <LOGO_BASE>/jira_cloud.png. UNFURL: to also unfurl the REAL work item beneath the card, pass send_app_notification.py --ticket-url <https://<site>.atlassian.net/browse/KEY-#>; the helper retargets the title link at that url, appends the BARE url to the message text (Slack only unfurls bare urls in `text`, never `<url|label>` links inside blocks), and sets unfurl_links=True. The real unfurl only renders if the Jira Cloud Slack app is installed in the target org and connected to that atlassian site. The `demo_real_unfurl` example below already points at a real ticket in the jenniferhynes.atlassian.net demo site.",
+  "examples": [
+    {
+      "name": "issue_created",
+      "when": "A ticket is opened (e.g., new dev work or a follow-up fix).",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*<https://welo.atlassian.net/browse/WELO-1|WELO-1 Wireframe creation>*"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*Status:* In Progress   :ballot_box_with_check: *Type:* Task   :bust_in_silhouette: *Assignee:* <https://welo.atlassian.net|Steven Service>  \u2191\n*Priority:* Medium"
+          }
+        },
+        {
+          "type": "actions",
+          "elements": [
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Assign",
+                "emoji": true
+              },
+              "action_id": "jira_assign",
+              "value": "assign"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Change status",
+                "emoji": true
+              },
+              "action_id": "jira_status",
+              "value": "status"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "\u2728 AI Summarise",
+                "emoji": true
+              },
+              "action_id": "jira_ai",
+              "value": "ai"
+            },
+            {
+              "type": "static_select",
+              "placeholder": {
+                "type": "plain_text",
+                "text": "More actions...",
+                "emoji": true
+              },
+              "action_id": "jira_more",
+              "options": [
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Add comment"
+                  },
+                  "value": "comment"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Log work"
+                  },
+                  "value": "log"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Watch issue"
+                  },
+                  "value": "watch"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Open in Jira"
+                  },
+                  "value": "open"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "Added by Jira Cloud"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "demo_real_unfurl",
+      "when": "A card that points at a REAL Jira ticket so Slack unfurls the live work item beneath it. Send with --ticket-url https://jenniferhynes.atlassian.net/browse/KAN-16 (the helper appends the bare url + enables unfurl_links). Requires the Jira Cloud Slack app installed in the target org.",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*<https://jenniferhynes.atlassian.net/browse/KAN-16|KAN-16 Configure onboarding email template>*"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*Status:* To Do   :ballot_box_with_check: *Type:* Task   :bust_in_silhouette: *Assignee:* Unassigned  ↑\n*Priority:* Medium   *Project:* Omega — LogiStream Implementation"
+          }
+        },
+        {
+          "type": "actions",
+          "elements": [
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Assign",
+                "emoji": true
+              },
+              "action_id": "jira_assign",
+              "value": "assign"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Change status",
+                "emoji": true
+              },
+              "action_id": "jira_status",
+              "value": "status"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "✨ AI Summarise",
+                "emoji": true
+              },
+              "action_id": "jira_ai",
+              "value": "ai"
+            },
+            {
+              "type": "static_select",
+              "placeholder": {
+                "type": "plain_text",
+                "text": "More actions...",
+                "emoji": true
+              },
+              "action_id": "jira_more",
+              "options": [
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Add comment"
+                  },
+                  "value": "comment"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Open in Jira"
+                  },
+                  "value": "open"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "Added by Jira Cloud"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "issue_transitioned",
+      "when": "An issue changes status (e.g., moves to Ready for QA).",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*<https://welo.atlassian.net/browse/WELO-1487|WELO-1487 Harden secrets rotation in auth module>*"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*Status:* In Progress \u2192 Ready for QA   :bust_in_silhouette: *Assignee:* <https://welo.atlassian.net|Aisha Nguyen>  \u2191\n*Priority:* High   *Sprint:* Welo Platform \u2014 Sprint 27"
+          }
+        },
+        {
+          "type": "actions",
+          "elements": [
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Assign",
+                "emoji": true
+              },
+              "action_id": "jira_assign",
+              "value": "assign"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Change status",
+                "emoji": true
+              },
+              "action_id": "jira_status",
+              "value": "status"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "\u2728 AI Summarise",
+                "emoji": true
+              },
+              "action_id": "jira_ai",
+              "value": "ai"
+            },
+            {
+              "type": "static_select",
+              "placeholder": {
+                "type": "plain_text",
+                "text": "More actions...",
+                "emoji": true
+              },
+              "action_id": "jira_more",
+              "options": [
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Add comment"
+                  },
+                  "value": "comment"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Move to Done"
+                  },
+                  "value": "done"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Open in Jira"
+                  },
+                  "value": "open"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "Added by Jira Cloud"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "epic_with_checklist",
+      "when": "An epic/readiness gate summary with an inline checklist (go-live cutover, release gate).",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*<https://welo.atlassian.net/browse/WELO-1420|WELO-1420 \u00b7 Welo Guard Go-Live Readiness \u2014 Cutover Gate>*"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*Status:* In Review   :bust_in_silhouette: *Assignee:* <https://welo.atlassian.net|Sachin Sheth>  \u2191\n*Priority:* Highest   *Fix Version:* Welo Cutover W1"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*Cutover checklist \u2014 7 of 8 complete*\n:white_check_mark: Auth \u2014 secrets rotation + role mapping\n:white_check_mark: Foundation \u2014 master data + user roles\n:white_check_mark: Telemetry ingest pipeline hardened\n:white_check_mark: Alerting + on-call routes wired\n:white_check_mark: Load + soak test signed off\n:white_check_mark: Rollback runbook approved\n:white_check_mark: Data migration dry-run clean\n:red_circle: Prod DB access \u2014 pending approval"
+          }
+        },
+        {
+          "type": "actions",
+          "elements": [
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Change status",
+                "emoji": true
+              },
+              "action_id": "jira_status",
+              "value": "status"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "\u2728 AI Summarise",
+                "emoji": true
+              },
+              "action_id": "jira_ai",
+              "value": "ai"
+            },
+            {
+              "type": "static_select",
+              "placeholder": {
+                "type": "plain_text",
+                "text": "More actions...",
+                "emoji": true
+              },
+              "action_id": "jira_more",
+              "options": [
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Add comment"
+                  },
+                  "value": "comment"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Open in Jira"
+                  },
+                  "value": "open"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "Added by Jira Cloud"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "alex_ai_memleak_followup",
+      "when": "Post-incident follow-up from #2847 \u2014 a Jira bug is created for the permanent memory-leak fix in the Alex AI inference pipeline (rollback was a temporary mitigation).",
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*<https://verdegroup.atlassian.net/browse/AAI-2847|AAI-2847 Permanent fix: memory leak in Alex AI inference container>*"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*Status:* To Do   :ballot_box_with_check: *Type:* Bug   :bust_in_silhouette: *Assignee:* <https://verdegroup.atlassian.net|Akshay Patel>  \u2191\n*Priority:* Highest   *Sprint:* Alex AI \u2014 Sprint 14   *Linked:* INC-2847"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "Rollback to v2.3.8 restored service but the leak persists in v2.4.x. Cursor analysis flagged tensor objects not released in the ML inference pipeline (line 247). Ship a hardened fix + memory soak test before re-attempting the v2.4 deploy."
+          }
+        },
+        {
+          "type": "actions",
+          "elements": [
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Assign",
+                "emoji": true
+              },
+              "action_id": "jira_assign",
+              "value": "assign"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Change status",
+                "emoji": true
+              },
+              "action_id": "jira_status",
+              "value": "status"
+            },
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "\u2728 AI Summarise",
+                "emoji": true
+              },
+              "action_id": "jira_ai",
+              "value": "ai"
+            },
+            {
+              "type": "static_select",
+              "placeholder": {
+                "type": "plain_text",
+                "text": "More actions...",
+                "emoji": true
+              },
+              "action_id": "jira_more",
+              "options": [
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Add comment"
+                  },
+                  "value": "comment"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Log work"
+                  },
+                  "value": "log"
+                },
+                {
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Open in Jira"
+                  },
+                  "value": "open"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "Added by Jira Cloud"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

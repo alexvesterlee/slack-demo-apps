@@ -34,7 +34,17 @@ CERT_FILE = CERT_DIR / "localhost.pem"
 KEY_FILE = CERT_DIR / "localhost.key"
 PORT = 3000
 
-USER_SCOPES = ["chat:write", "users.profile:write", "users.profile:read"]
+USER_SCOPES = [
+    "chat:write",
+    "users.profile:write",
+    "users.profile:read",
+    "reactions:write",
+    "files:write",
+    "channels:write",
+    "groups:write",
+    "im:write",
+    "mpim:write",
+]
 
 
 def ensure_cert() -> None:

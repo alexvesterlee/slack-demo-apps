@@ -52,15 +52,35 @@ def bot_client() -> WebClient:
 
 @lru_cache(maxsize=1)
 def workspace_team_id() -> str | None:
-    """team_id of the workspace the personas live in (required by Grid list/create)."""
+    """Real workspace team id (T...) required by Grid conversations.list/create.
+
+    IMPORTANT: on this enterprise-install org, a persona's auth.test returns the
+    *enterprise* id (E...), NOT a workspace id — passing that to
+    conversations.list/create fails with `team_access_not_granted`. So we ask the
+    bot token for its workspace(s) via auth.teams.list and return the first T...
+    id. Persona auth.test is only a fallback, and enterprise (E...) ids are
+    rejected there too.
+    """
+    # Preferred: the bot's own workspace list (returns the T... workspace id).
+    try:
+        r = bot_client().api_call("auth.teams.list")
+        teams = r.get("teams") or []
+        for t in teams:
+            tid = t.get("id", "")
+            if tid.startswith("T"):
+                return tid
+    except SlackApiError:
+        pass
+
+    # Fallback: persona auth.test — but only accept a workspace (T...) id.
     users = load_tokens().get("users", {})
     for email, tok in users.items():
         if email.startswith("_"):
             continue
         try:
-            r = WebClient(token=tok).auth_test()
-            if r.get("team_id"):
-                return r["team_id"]
+            tid = WebClient(token=tok).auth_test().get("team_id", "")
+            if tid.startswith("T"):
+                return tid
         except SlackApiError:
             continue
     return None
