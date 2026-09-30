@@ -493,9 +493,7 @@ demo needs them.
 
 ### Save the bot token
 
-> ## ⚠️ This step is super important
->
-> The bot token is what lets Claude **build out your demo org**, not just post
+> ⚠️ **Super important:** the bot token is what lets Claude **build out your demo org**, not just post
 > a few messages. With it, the app can:
 >
 > - **create new channels** and rename or archive old ones,
