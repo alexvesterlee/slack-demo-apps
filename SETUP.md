@@ -542,10 +542,17 @@ opportunity, stage changed), ServiceNow, GitHub, Azure Pipelines, DocuSign,
 Google Calendar, Zoom, Workday, Outreach, Polly, and more. Ask Claude *"which
 app notifications can you post?"* for the full list.
 
-> 💬 **Missing an app, or one doesn't look right?** I maintain the list of app
-> notification layouts (Block Kit) and logos in this repo. If you need an app
-> that isn't here, or a layout isn't working for you, reach out to **Alex Lee**
-> and I'll update the repo so it works for your demos.
+#### 💬 Missing an app? Reach out to Alex Lee
+
+> **I maintain the app notification layouts (Block Kit) and logos in this
+> repo, and I'm happy to add more.**
+>
+> - Need an app that isn't on the list?
+> - A layout doesn't look right or isn't working?
+> - Want a different kind of notification from an app that's already here?
+>
+> **Reach out to Alex Lee** and I'll update the repo so it works for your
+> demos. Everyone using the toolkit gets the update.
 
 > ℹ App notifications aren't on the cleanup list from Step 8. To remove one,
 > ask Claude to delete it.
