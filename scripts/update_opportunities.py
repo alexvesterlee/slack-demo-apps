@@ -7,7 +7,7 @@ freshly active whenever you demo. Optionally, you can pin specific "priority"
 opportunities to exact dates via a local `priority_opps.json` (see below).
 
 This is the SCRIPTED Salesforce path — it shells out to the `sf` CLI (install
-separately: `brew install --cask sf`, then `sf org login web`). Interactive,
+separately: `brew install sf`, then `sf org login web`). Interactive,
 one-off reads are better done by asking Claude through the Salesforce MCP server.
 
 Config (nothing org-specific is hardcoded):
@@ -57,7 +57,7 @@ def _parse_sf_json(raw: str) -> dict:
 def sf_bin() -> str:
     found = shutil.which("sf") or shutil.which("sf", path="/opt/homebrew/bin")
     if not found:
-        sys.exit("Error: 'sf' CLI not found. Install it: brew install --cask sf")
+        sys.exit("Error: 'sf' CLI not found. Install it: brew install sf")
     return found
 
 
