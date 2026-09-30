@@ -36,12 +36,13 @@ import urllib.request
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-# YOUR public assets repo ("owner/repo"), where logos + blockkit templates live.
-# Slack needs a public image URL for a custom app icon, so these are served over
-# raw.githubusercontent. Set DEMO_ASSETS_REPO to your own repo (it defaults to a
-# placeholder). push_logos.py / push_blockkit.py publish into the same repo.
-_ASSETS_REPO = os.environ.get("DEMO_ASSETS_REPO", "your-github-username/slack-demo-apps")
-_ASSETS_BRANCH = os.environ.get("DEMO_ASSETS_BRANCH", "main")
+# Public repo ("owner/repo") that hosts the logos + blockkit templates. Slack
+# needs a public image URL for a custom app icon, so logos are served over
+# raw.githubusercontent. Defaults to this toolkit's own repo, so real logos work
+# out of the box; set DEMO_ASSETS_REPO / DEMO_ASSETS_BRANCH to use your own.
+# push_logos.py / push_blockkit.py publish into the same repo.
+_ASSETS_REPO = os.environ.get("DEMO_ASSETS_REPO", "alexvesterlee/slack-demo-generator")
+_ASSETS_BRANCH = os.environ.get("DEMO_ASSETS_BRANCH", "toolkit")
 _ASSETS_RAW = f"https://raw.githubusercontent.com/{_ASSETS_REPO}/{_ASSETS_BRANCH}"
 
 # Where to fetch a blockkit/<key>.json when it isn't present locally, so a fresh

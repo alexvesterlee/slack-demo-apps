@@ -142,11 +142,12 @@ cd <path-to-toolkit>
   --channel "#critical-incidents" --icon-emoji :rotating_light:
 ```
 
-App logos need a **publicly reachable image URL**, so they're hosted in a public
-GitHub repo you own and served via `raw.githubusercontent.com`. Set
-`DEMO_ASSETS_REPO` to your repo (`owner/repo`) and publish assets with
-`scripts/push_logos.py` / `scripts/push_blockkit.py`. Logo filenames must match the block-kit
-file key (`datadog.png`, `pagerduty.png`, …); square PNG ≥192×192.
+App logos need a **publicly reachable image URL**. By default the helper uses
+the logos hosted in this toolkit's public GitHub repo, so real logos work with
+no setup. To host your own, set `DEMO_ASSETS_REPO` (`owner/repo`) and publish
+with `scripts/push_logos.py` / `scripts/push_blockkit.py`. Logo filenames must
+match the block-kit file key (`datadog.png`, `pagerduty.png`, …); square PNG
+≥192×192.
 
 Note: bot posts are **not** written to `sent.json`, so Step 1 won't auto-clean
 them. Delete them manually with `chat.delete` if a refresh needs a clean slate.

@@ -42,6 +42,16 @@ how to install and implement this project.
   Keep the manifest — it's how `scripts/delete_dms.py` knows what to remove later.
   When the user just asks in plain English ("send a DM from X to Y"), do all
   of this for them. They shouldn't have to edit configs or run commands.
+- **App notifications always come from this repo's Block Kit library.** When
+  the user asks for an app notification in plain English ("post a PagerDuty
+  alert in #incidents"), use `scripts/send_app_notification.py`. It reads the
+  layout from `blockkit/<app>.json` and the logo from `logos/<app>.png` (served
+  from the public repo). Run `--list` to see apps/examples, pick the closest
+  example, adapt the text in its blocks to the user's story, and `--dry-run`
+  first if unsure. Never hand-build Block Kit or post app notifications any
+  other way. If the app or layout they want isn't in the library, say so and
+  tell them to contact Alex Lee, who maintains the library, to get it added.
+  Post Jira notifications with `--ticket-url` pointing at a real ticket.
 - **Thread openers start with 🧵.** Any parent message that kicks off a thread
   begins with the 🧵 emoji so it's easy to spot. Replies don't.
 

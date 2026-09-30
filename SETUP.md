@@ -96,11 +96,6 @@ directly instead of activating.
   > bottom of this file. Every other command is identical.
 - **macOS, Linux, or Windows** — the toolkit generates its own OAuth cert
   using a pure-Python library, so you don't need `openssl` installed.
-- **(Optional) A GitHub account + a fine-grained PAT** — *not* needed to post
-  app-style notification cards (the layouts and logos ship in this repo). Only
-  needed if you want to host your **own** custom app logos as message avatars,
-  since Slack requires a public URL for a custom icon. See
-  [Side Quest 1](#side-quest-1-channel-management--app-notifications).
 - **(Optional) MCP servers** — only if you want to ground content in real data
   (Salesforce, Jira/Atlassian, ServiceNow, …). Configured in Claude Code, not
   here. See [Side Quest 2](#side-quest-2-connect-salesforce--other-tools).
@@ -529,53 +524,31 @@ That's it. Now you can just ask Claude, for example:
 
 ### Post app notifications
 
-Post cards that look like they came from a third-party app — PagerDuty,
-Salesforce, Jira, Docusign, etc. These go out via the **bot token** using
-`chat:write.customize` (custom username + icon), so they carry the app's name
-and an `APP` badge. (They are *not* recorded in `sent.json`; delete them
-manually with `chat.delete` if needed.)
+An **app notification** is a message that looks like it came from another app
+connected to Slack, like a PagerDuty incident alert, a Jira ticket update, or a
+Salesforce "deal won" message. It shows the app's name, logo, and an `APP` badge,
+just like the real thing.
 
-**No GitHub account is required.** Both ingredients already ship in this repo,
-so a fresh clone can post cards out of the box:
+Just ask Claude in plain English:
 
-- `blockkit/<app>.json` — the card layout(s) for each app (Block Kit). Read
-  straight from the local folder; nothing to fetch.
-- `logos/<app>.png` — the app icons, bundled here too.
+> "Post a PagerDuty incident alert in #critical-incidents about the checkout
+> service being down."
 
-Post a card:
+Claude uses the app notification layouts and logos that come with this repo.
+Nothing else to set up.
 
-```bash
-python scripts/send_app_notification.py --app pagerduty --example <example_name> --channel <C...>
-```
+**Apps included:** PagerDuty, Datadog, Jira, Salesforce (deal won, new
+opportunity, stage changed), ServiceNow, GitHub, Azure Pipelines, DocuSign,
+Google Calendar, Zoom, Workday, Outreach, Polly, and more. Ask Claude *"which
+app notifications can you post?"* for the full list.
 
-(`scripts/send_app_notification.py --help` lists the apps and examples.) The card text
-can be grounded in real data — see Side Quest 2.
+> 💬 **Missing an app, or one doesn't look right?** I maintain the list of app
+> notification layouts (Block Kit) and logos in this repo. If you need an app
+> that isn't here, or a layout isn't working for you, reach out to **Alex Lee**
+> and I'll update the repo so it works for your demos.
 
-#### About the app logo (the avatar)
-
-The one thing Slack won't accept from a local file is the **custom icon**: an
-`icon_url` must be a **publicly reachable URL**, not a file on disk. You have
-three choices, easiest first:
-
-1. **Use an emoji avatar (zero setup).** Pass `--icon-emoji :rotating_light:`
-   (or let the per-app default apply). The card posts fine — it just shows an
-   emoji instead of the real logo. Good enough for most demos.
-2. **Point at an already-public logo URL (no account, no PAT).** If the logos
-   are hosted somewhere public — including this repo's own `logos/` folder once
-   it's on GitHub — set `DEMO_LOGO_BASE` to that raw base and the helper builds
-   `icon_url = <base>/<app>.png` for you:
-   ```bash
-   export DEMO_LOGO_BASE="https://raw.githubusercontent.com/<owner>/<repo>/<branch>/logos"
-   ```
-3. **Host your own logos (needs a GitHub account + PAT).** Only if you want to
-   add or customize logos: set `DEMO_ASSETS_REPO="<your-username>/<your-repo>"`
-   and publish with `scripts/push_logos.py` / `scripts/push_blockkit.py` (these upload via the
-   GitHub Contents API). Provide the token via the `GHT` env var or the macOS
-   Keychain — **never paste it into chat.**
-
-Icon precedence in the helper: `--icon-url` → `--icon-emoji` →
-`DEMO_LOGO_BASE`/`<app>.png` → per-app emoji fallback. So if you set nothing,
-you still get a recognizable emoji avatar.
+> ℹ App notifications aren't on the cleanup list from Step 8. To remove one,
+> ask Claude to delete it.
 
 ---
 
