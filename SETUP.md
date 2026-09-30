@@ -471,44 +471,31 @@ more examples.
 
 ---
 
-## Step 9 (optional) — Channel management
+## Step 9 — Save the bot token (unlocks channels & app notifications)
 
-The **bot token** unlocks channel administration — creating, renaming,
-setting topics on, and archiving channels. (The same bot token also backs
-strict verification in Step 7 and app notifications in Step 10 — one bot token
-serves all of them.)
+Installing the app in Step 2 created a **bot token**, but the toolkit doesn't
+have a copy of it yet. (Your user tokens were saved automatically when you
+clicked Allow. The bot token has to be copied over once by hand.) With it,
+Claude can create and manage channels, post app notifications (Step 10), and
+double-check that each user token belongs to the right person.
 
-1. Make sure the app is installed ([Step 2](#step-2-install-the-app)). The
-   manifest from Step 1 already includes the bot scopes.
-2. Copy the **Bot User OAuth Token** (`xoxb-...`) from the app's **Install
-   App** page.
-   > ℹ Reinstalling the app does **not** invalidate already-captured
-   > `xoxp-` user tokens.
-3. **[Terminal]** — save it (hidden paste prompt + `y/N` confirm, which Claude
-   Code's runner can't drive):
+1. In your app's settings, go to **Install App** and copy the **Bot User OAuth
+   Token** (starts with `xoxb-`).
+2. **[Terminal]** In your separate Terminal window (not the Claude one), run:
    ```bash
    python scripts/save_bot_token.py
    ```
-   Paste the `xoxb-` when prompted. **Your keystrokes won't appear on
-   screen — that's intentional (`getpass` hides them). Just paste and Enter.**
-4. **[Claude Code]** Confirm the token landed in the right workspace:
-   ```bash
-   python scripts/check_bot_token.py
-   ```
-5. With the bot token saved, `scripts/channel_admin.py` can resolve / create / rename /
-   set-topic / archive channels:
-   ```bash
-   python scripts/channel_admin.py --help
-   ```
-   Use `scripts/preflight.py` before a big send to validate a config and heal channel
-   membership (invite the bot / personas where needed).
+   Paste the token and press Enter. **Nothing will appear on screen as you
+   paste. That's intentional, to keep it hidden.** Then type `y` to confirm.
 
-> ⚠ **Enterprise Grid quirks** (if your demo org is Grid): channel `list`/
-> `create` calls need a `team_id` (auto-discovered by `scripts/channel_admin.py`);
-> archiving or inviting requires the bot to be a *member* of the channel even
-> when it's public; and the bot can only *see* public channels — a private
-> channel it hasn't been invited to reads as "not found," which is not the
-> same as missing. Don't create a duplicate.
+That's it. Now you can just ask Claude, for example:
+
+> "Create a private channel called #welo-guard-implementation and add
+> Jennifer Hynes and Amy Weaver."
+
+> ℹ **Private channels:** the app can only see private channels it's been
+> added to. If Claude says it can't find one, type `/invite @Demo Content
+> Helper` (or whatever you named the app) in that channel.
 
 ---
 
