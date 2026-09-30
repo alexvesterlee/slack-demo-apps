@@ -14,3 +14,10 @@ sent.json
 *.pdf
 *.pptx
 .claude/
+
+# Org-specific demo content (real persona emails / channel IDs). Keep only the
+# *.example.json templates in the repo; author your own scenario files locally.
+/*_thread*.json
+/channel_messages.json
+/my_demo.json
+/omega_thread.json
