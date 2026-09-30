@@ -426,8 +426,18 @@ After you authorize, the script:
 4. **Refuses to save** if those don't match — and tells you to retry in
    incognito.
 
-Repeat for every persona. Each is stored under `users` in `tokens.json`,
-keyed by email.
+> ⭐ **Important: repeat this for at least 5 personas.** Good demo
+> conversations involve several people, like an AE, a CSM, an SE, a manager,
+> and a customer contact. With only one or two personas, every thread and DM
+> looks like the same two people talking. Capture a handful now so Claude has
+> a full cast to work with.
+>
+> Don't worry about getting names or roles right yet. You can change a
+> persona's name, title, and status later with this toolkit (just ask Claude,
+> e.g. *"rename this persona to Maria Lopez, VP of Sales"*), and their token
+> keeps working.
+
+Each persona is stored under `users` in `tokens.json`, keyed by email.
 
 > ℹ **Which persona can do what depends on the scopes it was captured with.**
 > A persona captured with only `chat:write` can post messages but *not* upload
