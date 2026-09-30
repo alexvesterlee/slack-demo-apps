@@ -80,7 +80,7 @@ scopes: `channels:read`, `groups:read`, `channels:manage`, `groups:write`,
 - **Older bot installs may lack `users:read.email`** — resolve persona
   email→id via each persona's own token `auth.test` (see
   `channel_admin.persona_user_id`).
-- After the user saves the bot token (SETUP Step 9) or rotates it, run `.venv/bin/python scripts/check_bot_token.py` to
+- After the user saves the bot token (SETUP Side Quest 1) or rotates it, run `.venv/bin/python scripts/check_bot_token.py` to
   confirm the token installed to the RIGHT org (a reinstall can silently land
   in the wrong Enterprise+ org → `team_access_not_granted`). To make that check
   assert a specific org, set `EXPECTED_ENTERPRISE_ID` (and optionally

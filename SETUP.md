@@ -100,10 +100,10 @@ directly instead of activating.
   app-style notification cards (the layouts and logos ship in this repo). Only
   needed if you want to host your **own** custom app logos as message avatars,
   since Slack requires a public URL for a custom icon. See
-  [Step 10](#step-10-optional--app-style-notifications).
+  [Side Quest 1](#side-quest-1-channel-management--app-notifications).
 - **(Optional) MCP servers** — only if you want to ground content in real data
   (Salesforce, Jira/Atlassian, ServiceNow, …). Configured in Claude Code, not
-  here. See [Step 11](#step-11-optional--ground-content-in-real-data-mcp).
+  here. See [Side Quest 2](#side-quest-2-connect-salesforce--other-tools).
 
 ---
 
@@ -472,7 +472,26 @@ more examples.
 
 ---
 
-## Step 9 — Save the bot token (unlocks channels & app notifications)
+## ✅ Checkpoint: the core setup is done
+
+Nice work. Take a quick pause here. Right now you can:
+
+- ✅ **Send messages, threads, and DMs as your demo users**
+
+You **can't** yet:
+
+- ❌ Create or manage channels (add users, set topics, rename, archive)
+- ❌ Post app notifications (PagerDuty, Jira, Salesforce cards, etc.)
+- ❌ Pull from or update third-party tools like Salesforce
+
+The two side quests below unlock those. Do them now or come back later when a
+demo needs them.
+
+---
+
+## Side Quest 1: Channel Management & App Notifications
+
+### Save the bot token
 
 > ## ⚠️ This step is super important
 >
@@ -482,7 +501,7 @@ more examples.
 > - **create new channels** and rename or archive old ones,
 > - **add users into channels**,
 > - **set channel topics**,
-> - **post app notifications** (Step 10),
+> - **post app notifications** (below),
 > - and double-check that each user token belongs to the right person.
 >
 > Without it, you're limited to posting messages in channels that already
@@ -510,9 +529,7 @@ That's it. Now you can just ask Claude, for example:
 > added to. If Claude says it can't find one, type `/invite @Demo Content
 > Helper` (or whatever you named the app) in that channel.
 
----
-
-## Step 10 (optional) — App-style notifications
+### Post app notifications
 
 Post cards that look like they came from a third-party app — PagerDuty,
 Salesforce, Jira, Docusign, etc. These go out via the **bot token** using
@@ -534,9 +551,9 @@ python scripts/send_app_notification.py --app pagerduty --example <example_name>
 ```
 
 (`scripts/send_app_notification.py --help` lists the apps and examples.) The card text
-can be grounded in real data — see Step 11.
+can be grounded in real data — see Side Quest 2.
 
-### About the app logo (the avatar)
+#### About the app logo (the avatar)
 
 The one thing Slack won't accept from a local file is the **custom icon**: an
 `icon_url` must be a **publicly reachable URL**, not a file on disk. You have
@@ -564,7 +581,7 @@ you still get a recognizable emoji avatar.
 
 ---
 
-## Step 11 (optional) — Ground content in real data (MCP or CLI)
+## Side Quest 2: Connect Salesforce & other tools
 
 The most convincing demos reference data that actually exists, so names,
 amounts, stages, and dates all line up. There are **two ways** the toolkit
