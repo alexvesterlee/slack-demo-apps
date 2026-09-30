@@ -370,13 +370,13 @@ tokens.)
 
 ---
 
-## Step 6 — Capture user tokens (at least 5 users)
+## Step 6 — Capture user tokens (~5 users recommended)
 
-> ## ⭐ Do this for at least 5 users
+> ## ⭐ We recommend repeating this for at least ~5 users
 >
 > Every user you capture here is someone Claude can post as. Demo
-> conversations need several people, so **capture at least 5 users before
-> moving on.** You'll decide who they are (names, titles, roles) later, demo
+> conversations usually need several people, so we recommend capturing
+> **at least ~5 users** before moving on. You'll decide who they are (names, titles, roles) later, demo
 > by demo. Right now you just need the tokens.
 
 **[Terminal]** — **open a new Terminal window**, separate from the one where
