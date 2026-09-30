@@ -18,8 +18,9 @@ from pathlib import Path
 
 from slack_sdk.errors import SlackApiError
 
-# Make `from config import ...` work whether run from repo root or examples/.
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+# Make `from config import ...` work regardless of the caller's cwd (config.py
+# lives alongside this file in scripts/).
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from config import audit_log, user_client  # noqa: E402
 
 

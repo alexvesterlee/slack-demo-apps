@@ -56,7 +56,8 @@ if not TOKEN:
              f"-T /usr/bin/security -U -w")
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-LOCAL_LOGO_DIR = os.path.join(HERE, "logos")
+REPO_ROOT = os.path.dirname(HERE)  # repo root (this file is in scripts/)
+LOCAL_LOGO_DIR = os.path.join(REPO_ROOT, "logos")
 
 README = f"""# {REPO}
 

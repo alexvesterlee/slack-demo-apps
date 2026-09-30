@@ -21,7 +21,7 @@ from pathlib import Path
 
 from slack_sdk.errors import SlackApiError
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from config import audit_log, user_client
 
 

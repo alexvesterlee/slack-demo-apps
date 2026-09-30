@@ -49,14 +49,29 @@ reseeds channels/DMs on its own).
 
 ## What's in here
 
-| Area | Files |
-|---|---|
-| Setup & auth | `auth_user.py`, `save_bot_token.py`, `check_bot_token.py`, `verify_setup.py`, `config.py`, `preflight.py`, `tokens.example.json` |
-| Posting content | `examples/send_dms_as_users.py`, `examples/send_thread.py`, `examples/delete_dms.py` |
-| Channels | `channel_admin.py`, `archive_channel.py` |
-| App notifications | `send_app_notification.py`, `blockkit/*.json`, `logos/*.png`, `push_logos.py`, `push_blockkit.py` |
+```
+├── README.md            ← you are here
+├── SETUP.md             ← one-time install & token capture
+├── USING_CLAUDE.md      ← build demos, author skills, schedule them
+├── CLAUDE.md            ← orientation Claude Code reads automatically
+├── requirements.txt     ← Python dependencies
+├── tokens.example.json  ← copy to tokens.json and fill in
+├── scripts/             ← all the Python (run these)
+│   ├── config.py                  shared helpers (token loading, clients)
+│   ├── auth_user.py · save_bot_token.py · check_bot_token.py · verify_setup.py
+│   ├── send_dms_as_users.py · send_thread.py · delete_dms.py
+│   ├── channel_admin.py · preflight.py · archive_channel.py
+│   ├── send_app_notification.py · push_logos.py · push_blockkit.py
+│   └── update_opportunities.py · update_profile.py · run_demo.py
+├── blockkit/            ← app-notification card layouts (*.json)
+├── logos/               ← app-notification icons (*.png)
+├── skills/              ← reusable Claude skill templates (demo-refresh)
+└── examples/            ← configs you copy & edit for a demo
+```
 
-See the **File reference** and **How it fits together** sections in
+Run any script from the repo root as `.venv/bin/python scripts/<name>.py`
+(config.py and your `tokens.json` are found automatically). See the
+**File reference** and **How it fits together** sections in
 [SETUP.md](SETUP.md) for the full picture.
 
 ---

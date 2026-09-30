@@ -50,7 +50,7 @@ Claude to pull a record and seed matching Slack content in one breath.
 
 > There are **two** paths to data, and you'll use both:
 > - *You asking Claude interactively* → Claude uses the **MCP server**.
-> - *A committed script running on its own* (like `update_opportunities.py`) →
+> - *A committed script running on its own* (like `scripts/update_opportunities.py`) →
 >   it shells out to a **vendor CLI** (e.g. `sf`). Install that CLI separately.
 
 ---
@@ -68,7 +68,7 @@ helps to know what's possible so you can ask for it.
 > "Have our AE persona DM the customer contact to confirm tomorrow's call, then
 > have the customer reply that they're looping in their VP. Keep it casual."
 
-Claude edits a message config and runs `send_dms_as_users.py`, logging what it
+Claude edits a message config and runs `scripts/send_dms_as_users.py`, logging what it
 sent to `sent.json` so it can be cleaned up later.
 
 **Build a channel thread grounded in real data:**
@@ -77,7 +77,7 @@ sent to `sent.json` so it can be cleaned up later.
 > deal-team thread in that account's channel — opener from the AE summarizing
 > where the deal stands, then two replies from the CSM and SE."
 
-Claude queries the Salesforce MCP server, then uses `send_thread.py`. (Thread
+Claude queries the Salesforce MCP server, then uses `scripts/send_thread.py`. (Thread
 openers start with a 🧵 by convention so they're easy to spot.)
 
 **Post an app-style notification:**
@@ -85,7 +85,7 @@ openers start with a 🧵 by convention so they're easy to spot.)
 > "Drop a PagerDuty 'incident triggered' card into #critical-incidents, then a
 > follow-up 'resolved' card in the same thread 20 minutes later in the story."
 
-Claude uses `send_app_notification.py`. The card layouts and logos ship in the
+Claude uses `scripts/send_app_notification.py`. The card layouts and logos ship in the
 repo — no extra setup (see `SETUP.md` Step 10).
 
 **Manage channels:**
@@ -93,13 +93,13 @@ repo — no extra setup (see `SETUP.md` Step 10).
 > "Create a private #warroom-<account> channel and invite the AE, the CSM, and
 > the SE personas."
 
-Claude uses `channel_admin.py`.
+Claude uses `scripts/channel_admin.py`.
 
 **Clean up afterward:**
 
 > "Tear down everything we posted for this demo."
 
-Claude runs `delete_dms.py` against `sent.json` (persona messages) and deletes
+Claude runs `scripts/delete_dms.py` against `sent.json` (persona messages) and deletes
 any app cards it posted.
 
 ### Tips
@@ -146,7 +146,7 @@ personal to you and can safely contain your org's real IDs.
 ### Start from the example
 
 This repo ships a **sanitized template** at
-[`examples/skills/demo-refresh/SKILL.md`](examples/skills/demo-refresh/SKILL.md).
+[`skills/demo-refresh/SKILL.md`](skills/demo-refresh/SKILL.md).
 It's the exact shape of a real refresh skill — delete → preflight → send →
 update Salesforce — with every org-specific value replaced by a placeholder.
 
@@ -154,12 +154,12 @@ To adopt it:
 
 ```bash
 mkdir -p ~/.claude/skills/demo-refresh
-cp examples/skills/demo-refresh/SKILL.md ~/.claude/skills/demo-refresh/SKILL.md
+cp skills/demo-refresh/SKILL.md ~/.claude/skills/demo-refresh/SKILL.md
 ```
 
 Then open it and fill in your specifics — or just tell Claude:
 
-> "Read examples/skills/demo-refresh/SKILL.md, then help me turn it into my own
+> "Read skills/demo-refresh/SKILL.md, then help me turn it into my own
 > skill in ~/.claude/skills/. My Salesforce org is <alias>, the key account is
 > <name>, and here are the channels I post into..."
 
@@ -262,7 +262,7 @@ minimal `PATH`.
   needs its dependencies on `PATH` (on macOS with Homebrew,
   `export PATH="/opt/homebrew/bin:$PATH"`). The example skill already prepends
   this in its Salesforce steps; make sure yours does too.
-- **Long-running steps.** `update_opportunities.py` can iterate over many
+- **Long-running steps.** `scripts/update_opportunities.py` can iterate over many
   opportunities and run for several minutes — fine headless, just don't expect
   an instant finish.
 - **Test the exact scheduled command by hand first.** Most scheduling failures

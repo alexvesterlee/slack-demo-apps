@@ -47,7 +47,9 @@ _ASSETS_RAW = f"https://raw.githubusercontent.com/{_ASSETS_REPO}/{_ASSETS_BRANCH
 # Where to fetch a blockkit/<key>.json when it isn't present locally, so a fresh
 # clone with no local blockkit/ dir still works. Override via DEMO_BLOCKKIT_BASE.
 RAW_BASE = os.environ.get("DEMO_BLOCKKIT_BASE", f"{_ASSETS_RAW}/blockkit").rstrip("/")
-LOCAL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "blockkit")
+# Repo root is one level up from this file (scripts/); blockkit/ lives there.
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOCAL_DIR = os.path.join(_REPO_ROOT, "blockkit")
 
 # Base URL of the hosted logo folder. Each app posts with
 #   icon_url = f"{LOGO_BASE}/<key>.png"
@@ -163,8 +165,7 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="print the payload, don't send")
     a = ap.parse_args()
 
-    tokens = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                          "tokens.json")))
+    tokens = json.load(open(os.path.join(_REPO_ROOT, "tokens.json")))
     bot = tokens.get("app_token")
     if not bot:
         sys.exit("[error] no bot token (app_token) in tokens.json — chat:write.customize "

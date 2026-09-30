@@ -131,7 +131,7 @@ In the app settings, go to **OAuth & Permissions**.
    > generates a self-signed cert for this on first run.
 
 2. Under **User Token Scopes**, add the scopes for the persona actions you want.
-   These are what `auth_user.py` requests when it captures a persona token
+   These are what `scripts/auth_user.py` requests when it captures a persona token
    (see `USER_SCOPES` in that file — keep the two in sync):
 
    | Scope | Enables |
@@ -147,7 +147,7 @@ In the app settings, go to **OAuth & Permissions**.
    > ℹ **Minimum viable:** just `chat:write` gets you send + delete of
    > messages and DMs. Add the rest as your demos need them. **Scopes are
    > baked into a token at capture time** — if you add a scope later, you must
-   > re-run `auth_user.py` for that persona to pick it up.
+   > re-run `scripts/auth_user.py` for that persona to pick it up.
 
 3. (For app notifications, channel admin, and strict verification) Under **Bot
    Token Scopes**, add:
@@ -220,7 +220,7 @@ paste the client ID/secret from the Slack web UI; don't paste other
 tokens.)
 
 > ⚠ **Never paste tokens into a chat with Claude Code.** Always use the
-> local scripts (`auth_user.py` for user tokens, `save_bot_token.py` for the
+> local scripts (`scripts/auth_user.py` for user tokens, `scripts/save_bot_token.py` for the
 > bot token). Pasting tokens into chat re-leaks them.
 
 ---
@@ -235,7 +235,7 @@ For each user you want to impersonate (e.g., an AE persona, a customer
 persona, a deal-desk persona):
 
 ```bash
-python -u auth_user.py --email persona@yourorg.com
+python -u scripts/auth_user.py --email persona@yourorg.com
 ```
 
 > ⚠ Use `python -u` (unbuffered) so the OAuth URL prints **before** the
@@ -269,7 +269,7 @@ keyed by email.
 > ℹ **Which persona can do what depends on the scopes it was captured with.**
 > A persona captured with only `chat:write` can post messages but *not* upload
 > a file — you'll get `missing_scope needed=files:write:user`. Re-run
-> `auth_user.py` for that persona after widening `USER_SCOPES`, or pick a
+> `scripts/auth_user.py` for that persona after widening `USER_SCOPES`, or pick a
 > persona that already has the scope for that role.
 
 ---
@@ -279,7 +279,7 @@ keyed by email.
 **[Claude Code]** (or Terminal, either works):
 
 ```bash
-python verify_setup.py
+python scripts/verify_setup.py
 ```
 
 Should print every persona email + matching user ID and end with
@@ -301,17 +301,17 @@ human message goes out through that **persona's own token** — never the bot.
    and the recipient / channel. In Claude Code, ask Claude to open and edit it.
 3. Send:
    ```bash
-   python examples/send_dms_as_users.py --config my_demo.json --manifest sent.json
+   python scripts/send_dms_as_users.py --config my_demo.json --manifest sent.json
    ```
 4. Confirm it appears in Slack.
 
-**Threads** work the same way — see `examples/send_thread.py` for a parent
+**Threads** work the same way — see `scripts/send_thread.py` for a parent
 message plus threaded replies from different personas.
 
 > ℹ **Manifest = your undo button.** Everything sent as a persona is appended
 > to `sent.json`. To clean up:
 > ```bash
-> python examples/delete_dms.py --manifest sent.json
+> python scripts/delete_dms.py --manifest sent.json
 > ```
 > (User tokens can only delete their *own* messages, so the manifest records
 > which persona sent each one.)
@@ -337,24 +337,24 @@ serves all of them.)
 3. **[Terminal]** — save it (hidden paste prompt + `y/N` confirm, which Claude
    Code's runner can't drive):
    ```bash
-   python save_bot_token.py
+   python scripts/save_bot_token.py
    ```
    Paste the `xoxb-` when prompted. **Your keystrokes won't appear on
    screen — that's intentional (`getpass` hides them). Just paste and Enter.**
 4. **[Claude Code]** Confirm the token landed in the right workspace:
    ```bash
-   python check_bot_token.py
+   python scripts/check_bot_token.py
    ```
-5. With the bot token saved, `channel_admin.py` can resolve / create / rename /
+5. With the bot token saved, `scripts/channel_admin.py` can resolve / create / rename /
    set-topic / archive channels:
    ```bash
-   python channel_admin.py --help
+   python scripts/channel_admin.py --help
    ```
-   Use `preflight.py` before a big send to validate a config and heal channel
+   Use `scripts/preflight.py` before a big send to validate a config and heal channel
    membership (invite the bot / personas where needed).
 
 > ⚠ **Enterprise Grid quirks** (if your demo org is Grid): channel `list`/
-> `create` calls need a `team_id` (auto-discovered by `channel_admin.py`);
+> `create` calls need a `team_id` (auto-discovered by `scripts/channel_admin.py`);
 > archiving or inviting requires the bot to be a *member* of the channel even
 > when it's public; and the bot can only *see* public channels — a private
 > channel it hasn't been invited to reads as "not found," which is not the
@@ -380,10 +380,10 @@ so a fresh clone can post cards out of the box:
 Post a card:
 
 ```bash
-python send_app_notification.py --app pagerduty --example <example_name> --channel <C...>
+python scripts/send_app_notification.py --app pagerduty --example <example_name> --channel <C...>
 ```
 
-(`send_app_notification.py --help` lists the apps and examples.) The card text
+(`scripts/send_app_notification.py --help` lists the apps and examples.) The card text
 can be grounded in real data — see Step 11.
 
 ### About the app logo (the avatar)
@@ -404,7 +404,7 @@ three choices, easiest first:
    ```
 3. **Host your own logos (needs a GitHub account + PAT).** Only if you want to
    add or customize logos: set `DEMO_ASSETS_REPO="<your-username>/<your-repo>"`
-   and publish with `push_logos.py` / `push_blockkit.py` (these upload via the
+   and publish with `scripts/push_logos.py` / `scripts/push_blockkit.py` (these upload via the
    GitHub Contents API). Provide the token via the `GHT` env var or the macOS
    Keychain — **never paste it into chat.**
 
@@ -434,7 +434,7 @@ repo).
 
 **B. Scripted reads/writes — via a vendor CLI.** The repo's own automation talks
 to Salesforce through the **`sf` CLI**, not MCP. For example
-`update_opportunities.py` shells out to it:
+`scripts/update_opportunities.py` shells out to it:
 
 ```python
 subprocess.run([sf_bin(), "data", "query", "-o", SF_ORG, "--query", soql, "--json"])
@@ -458,8 +458,8 @@ If you need to rotate (e.g., a token leaked):
 | Token | How to rotate |
 |---|---|
 | `client_secret` | Slack app → Basic Information → Regenerate. Update `tokens.json`. |
-| Bot `xoxb-` | Reinstall app → copy new token → `python save_bot_token.py` → `python check_bot_token.py`. |
-| Persona `xoxp-` | Re-run `python -u auth_user.py --email persona@yourorg.com`. |
+| Bot `xoxb-` | Reinstall app → copy new token → `python scripts/save_bot_token.py` → `python scripts/check_bot_token.py`. |
+| Persona `xoxp-` | Re-run `python -u scripts/auth_user.py --email persona@yourorg.com`. |
 | GitHub PAT (logos) | Regenerate in GitHub → update `GHT` env var / Keychain entry. |
 
 Reinstalling the app does **not** invalidate existing user (`xoxp-`) tokens.
@@ -475,12 +475,12 @@ Reinstalling the app does **not** invalidate existing user (`xoxp-`) tokens.
 
 | File | Purpose |
 |---|---|
-| `auth_user.py` | OAuth flow — captures one persona's `xoxp-` per run (scopes = `USER_SCOPES`) |
-| `save_bot_token.py` | Hidden paste path for the bot `xoxb-` token |
-| `check_bot_token.py` | Confirms the bot token installed to the right workspace/org |
-| `verify_setup.py` | Diagnostic — confirms `tokens.json` is wired up correctly |
-| `config.py` | Shared helpers: `user_client(email)`, bot client, `audit_log()` |
-| `preflight.py` | Validate a send config + heal channel membership before sending |
+| `scripts/auth_user.py` | OAuth flow — captures one persona's `xoxp-` per run (scopes = `USER_SCOPES`) |
+| `scripts/save_bot_token.py` | Hidden paste path for the bot `xoxb-` token |
+| `scripts/check_bot_token.py` | Confirms the bot token installed to the right workspace/org |
+| `scripts/verify_setup.py` | Diagnostic — confirms `tokens.json` is wired up correctly |
+| `scripts/config.py` | Shared helpers: `user_client(email)`, bot client, `audit_log()` |
+| `scripts/preflight.py` | Validate a send config + heal channel membership before sending |
 | `tokens.example.json` | Template — copy to `tokens.json` and fill in |
 | `tokens.json` | Your real tokens (gitignored, never committed) |
 
@@ -488,16 +488,16 @@ Reinstalling the app does **not** invalidate existing user (`xoxp-`) tokens.
 
 | File | Purpose |
 |---|---|
-| `examples/send_dms_as_users.py` | Send a list of messages/DMs from different personas |
-| `examples/send_thread.py` | Post a parent message + threaded replies as personas |
-| `examples/delete_dms.py` | Delete previously-sent persona messages (from the manifest) |
-| `channel_admin.py` | Resolve / create / rename / set-topic / archive channels (bot token) |
-| `archive_channel.py` | Convenience wrapper to archive a channel |
-| `send_app_notification.py` | Post an app-style Block Kit card as a third-party app (bot token) |
+| `scripts/send_dms_as_users.py` | Send a list of messages/DMs from different personas |
+| `scripts/send_thread.py` | Post a parent message + threaded replies as personas |
+| `scripts/delete_dms.py` | Delete previously-sent persona messages (from the manifest) |
+| `scripts/channel_admin.py` | Resolve / create / rename / set-topic / archive channels (bot token) |
+| `scripts/archive_channel.py` | Convenience wrapper to archive a channel |
+| `scripts/send_app_notification.py` | Post an app-style Block Kit card as a third-party app (bot token) |
 | `blockkit/*.json` | Block Kit card layouts, one file per app |
 | `logos/*.png` | App icons for the cards |
-| `push_logos.py`, `push_blockkit.py` | Publish logos/templates to the public assets repo |
-| `update_opportunities.py` | Example: read/update Salesforce opps via the `sf` CLI (scripted data path) |
+| `scripts/push_logos.py`, `scripts/push_blockkit.py` | Publish logos/templates to the public assets repo |
+| `scripts/update_opportunities.py` | Example: read/update Salesforce opps via the `sf` CLI (scripted data path) |
 
 > The various `seed_*.py`, `case_channels.py`, `*_thread.py`, and `*.json`
 > content files in the repo root are **example demo scenarios**, not part of
@@ -507,22 +507,22 @@ Reinstalling the app does **not** invalidate existing user (`xoxp-`) tokens.
 
 ## Troubleshooting
 
-**`auth_user.py` exits with "Missing or unset oauth.client_id"** — You
+**`scripts/auth_user.py` exits with "Missing or unset oauth.client_id"** — You
 haven't filled in `tokens.json`. See Step 5.
 
 **Browser shows "Your connection is not private"** — Expected. The toolkit
 uses a self-signed cert for the OAuth callback. Click **advanced → proceed**.
 
-**`auth_user.py` says "VERIFICATION FAILED — token NOT saved"** — You
+**`scripts/auth_user.py` says "VERIFICATION FAILED — token NOT saved"** — You
 authorized in a browser logged in as the wrong user. Re-run in incognito as
 the target persona.
 
-**`auth_user.py` blocks before printing the URL** — You forgot the `-u`
-flag. Hit `Ctrl+C` and re-run as `python -u auth_user.py ...`.
+**`scripts/auth_user.py` blocks before printing the URL** — You forgot the `-u`
+flag. Hit `Ctrl+C` and re-run as `python -u scripts/auth_user.py ...`.
 
 **`missing_scope needed=files:write:user`** (or another `:user` scope) — The
 persona's token was captured before that scope existed in `USER_SCOPES`. Add
-the scope in the Slack app, then re-run `auth_user.py` for that persona.
+the scope in the Slack app, then re-run `scripts/auth_user.py` for that persona.
 
 **`chat.delete` returns `cant_delete_message`** — User tokens can only
 delete their own messages. Make sure the `sender_email` in the manifest
@@ -533,10 +533,10 @@ The bot isn't a member of that channel. It self-joins public channels via
 `channels:join`; for a private channel, `/invite` the bot manually first.
 
 **Bot channel calls return `missing_argument` (Enterprise Grid)** — Grid
-requires a `team_id` on `conversations.list`/`create`. Use `channel_admin.py`,
+requires a `team_id` on `conversations.list`/`create`. Use `scripts/channel_admin.py`,
 which auto-discovers it.
 
-**`check_bot_token.py` / bot calls return `team_access_not_granted`** — A
+**`scripts/check_bot_token.py` / bot calls return `team_access_not_granted`** — A
 reinstall landed the bot token in the wrong Grid org. Reinstall to the correct
 org and re-save the token.
 
@@ -599,8 +599,8 @@ Windows users: Steps 1–3 are in the Slack web UI and work as written.
 Everything from Step 4 onward runs in **PowerShell** (search "PowerShell" in
 the Start menu). Only the commands in this table differ from the main flow
 above — anything that starts with `python` (e.g.,
-`python -u auth_user.py ...`, `python verify_setup.py`,
-`python examples/send_dms_as_users.py ...`) runs identically.
+`python -u scripts/auth_user.py ...`, `python scripts/verify_setup.py`,
+`python scripts/send_dms_as_users.py ...`) runs identically.
 
 | Step | Mac/Linux (main flow) | Windows (PowerShell) |
 |---|---|---|

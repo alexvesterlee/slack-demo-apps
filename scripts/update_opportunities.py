@@ -40,7 +40,7 @@ import sys
 from datetime import date, timedelta
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent  # repo root (this file is in scripts/)
 PRIORITY_FILE = ROOT / "priority_opps.json"  # optional, gitignored
 
 # The `sf` CLI emits ANSI color escapes even with --json unless color is

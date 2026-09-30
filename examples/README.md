@@ -1,31 +1,37 @@
 # Examples
 
-These scripts are **reference patterns**, not production tools. Copy and edit
-them for your own demo — don't expect to run them as-is.
+Starter files you **copy and edit** for your own demo — reference patterns, not
+production tools.
 
-| Script | What it does |
+| File | What it is |
 |---|---|
-| `send_dms_as_users.py` | Send a list of DMs from different personas to a single recipient. Reads the message list from a JSON file. |
-| `delete_dms.py` | Delete previously-sent DMs. Reads `(sender_email, ts)` tuples from a JSON file (e.g., the manifest written by `send_dms_as_users.py`). |
+| `send_messages.example.json` | A sample message config: a list of DMs/messages to send as different personas. Copy it to your own file (e.g. `my_demo.json` at the repo root) and edit the `sender_email` / `channel` / `text` fields. |
 
-## The probe-and-delete trick (important if you write your own delete script)
-
-A persona's user token has `chat:write` but **not** `im:read` or `im:write`.
-That means it cannot call `conversations.open` or `im.list` to find the DM
-channel ID — but `chat.delete` requires both `channel` and `ts`.
-
-Workaround: post a one-character throwaway message via `chat.postMessage`
-with `channel=<recipient_user_id>`. Slack auto-resolves the DM channel and
-returns its ID in the response. Then call `chat.delete` on both the throwaway
-and the real target. See `delete_dms.py` for the implementation.
+The scripts that consume these configs live in [`../scripts/`](../scripts):
+`send_dms_as_users.py` (send), `send_thread.py` (threaded conversations), and
+`delete_dms.py` (clean up from a manifest).
 
 ## Usage
 
 ```bash
-# 1. Write a JSON file describing what to send (see send_messages.example.json)
-# 2. Send:
-python examples/send_dms_as_users.py --config send_messages.json --manifest sent.json
+# 1. Copy the example config and edit it for your demo
+cp examples/send_messages.example.json my_demo.json
 
-# 3. Later, to delete:
-python examples/delete_dms.py --manifest sent.json
+# 2. Send (writes a sent.json manifest for later cleanup)
+python scripts/send_dms_as_users.py --config my_demo.json --manifest sent.json
+
+# 3. Later, tear it down
+python scripts/delete_dms.py --manifest sent.json
 ```
+
+## The probe-and-delete trick (background)
+
+Worth knowing if you write your own delete logic. A persona's user token has
+`chat:write` but **not** `im:read` or `im:write`, so it cannot call
+`conversations.open` / `im.list` to find a DM channel ID — yet `chat.delete`
+needs both `channel` and `ts`.
+
+Workaround: post a one-character throwaway message via `chat.postMessage` with
+`channel=<recipient_user_id>`. Slack auto-resolves the DM channel and returns its
+ID, then you `chat.delete` both the throwaway and the real target. See
+`scripts/delete_dms.py` for the implementation.

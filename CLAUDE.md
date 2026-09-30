@@ -16,7 +16,7 @@ how to install and implement this project.
   a reusable skill (`~/.claude/skills/<name>/SKILL.md`), and scheduling that
   skill headless via `claude -p "<trigger>"` (launchd/cron) for a recurring
   refresh. A sanitized skill template lives at
-  `examples/skills/demo-refresh/SKILL.md` — offer to copy it into
+  `skills/demo-refresh/SKILL.md` — offer to copy it into
   `~/.claude/skills/` and fill in the user's org specifics when they want a
   repeatable or scheduled refresh.
 - **Respect the [Claude Code] vs [Terminal] tags in SETUP.md.** For
@@ -34,26 +34,26 @@ how to install and implement this project.
   doc is Mac-first; for Windows users, substitute from the
   `## Windows commands` table at the bottom of `SETUP.md` whenever a command
   starts with `source`, `cp`, or `python3.12`. Everything else is identical.
-- **After token capture** — always run `python verify_setup.py` and read the
+- **After token capture** — always run `python scripts/verify_setup.py` and read the
   output before declaring setup done.
 - **Sending DMs** — copy `examples/send_messages.example.json` to a new file,
   edit it for the user's demo, then run
-  `python examples/send_dms_as_users.py --config <file> --manifest sent.json`.
-  Keep the manifest — it's how `delete_dms.py` knows what to remove later.
+  `python scripts/send_dms_as_users.py --config <file> --manifest sent.json`.
+  Keep the manifest — it's how `scripts/delete_dms.py` knows what to remove later.
 
 ## What you must NOT do
 
 - **Never ask the user to paste a token into the chat.** Always route them
-  through `auth_user.py` (browser OAuth) for `xoxp-` user tokens or
-  `save_bot_token.py` (getpass) for the optional `xoxb-` bot token (channel
+  through `scripts/auth_user.py` (browser OAuth) for `xoxp-` user tokens or
+  `scripts/save_bot_token.py` (getpass) for the optional `xoxb-` bot token (channel
   admin, strict verification, app notifications).
   Re-pasting tokens in chat re-leaks them into transcripts/logs.
 - **Don't fabricate features.** This toolkit does NOT include AI agents. If
   asked for those, say so.
   - **Channel management IS now in scope** (as of the 2026-07 expansion). The
-    bot token carries channel scopes and the repo provides `channel_admin.py`
-    (resolve/ensure/create/rename/topic/archive), `preflight.py`, and
-    `check_bot_token.py`. The goal is a **demo-asset builder** with read/write
+    bot token carries channel scopes and the repo provides `scripts/channel_admin.py`
+    (resolve/ensure/create/rename/topic/archive), `scripts/preflight.py`, and
+    `scripts/check_bot_token.py`. The goal is a **demo-asset builder** with read/write
     access to channels (and, as scopes are added, users/apps/content) so demos
     can be staged easily in Slack. See "Channel admin toolbox" and the Grid
     notes below.
@@ -67,26 +67,26 @@ scopes: `channels:read`, `groups:read`, `channels:manage`, `groups:write`,
 `channels:join`. Hard-won quirks — don't rediscover them:
 
 - **Grid needs `team_id`** on `conversations.list` and `conversations.create`
-  (else `missing_argument`). `channel_admin.py` auto-discovers it from a
+  (else `missing_argument`). `scripts/channel_admin.py` auto-discovers it from a
   persona token; reuse that helper rather than hard-coding.
 - **Archive/invite require bot membership**, even for PUBLIC channels
   (`not_in_channel` otherwise). Bot self-joins public via `channels:join`;
   PRIVATE channels need a manual `/invite` of the bot.
 - **Bot has no `users:read.email`** — resolve persona email→id via each
   persona's own token `auth.test` (see `channel_admin.persona_user_id`).
-- After any bot-token rotation, run `.venv/bin/python check_bot_token.py` to
+- After any bot-token rotation, run `.venv/bin/python scripts/check_bot_token.py` to
   confirm the token installed to the RIGHT org (a reinstall can silently land
   in the wrong Grid org → `team_access_not_granted`). To make that check
   assert a specific org, set `EXPECTED_ENTERPRISE_ID` (and optionally
   `CHECK_CHANNEL`) in the environment first; without them the script just
   reports what it sees.
 
-Toolbox: `channel_admin.py` (CLI + library), `preflight.py` (validate configs
-+ heal membership before sending), `archive_channel.py`, `check_bot_token.py`.
+Toolbox: `scripts/channel_admin.py` (CLI + library), `scripts/preflight.py` (validate configs
++ heal membership before sending), `scripts/archive_channel.py`, `scripts/check_bot_token.py`.
 
 ## Critical OAuth gotcha
 
-When `auth_user.py` opens the OAuth URL, it goes to the user's **default**
+When `scripts/auth_user.py` opens the OAuth URL, it goes to the user's **default**
 browser. If they're logged in to Slack there as a different user (e.g., their
 admin account), Slack silently grants THAT user's token. The script's
 post-capture check (`auth.test` + `users.lookupByEmail`) catches this and
@@ -106,7 +106,7 @@ working with multiple personas.
 If the user needs to rotate tokens:
 1. Rotate via Slack app UI (Basic Information page for client secret;
    reinstall app for new bot/user tokens).
-2. For the bot token: `python save_bot_token.py` (getpass).
-3. For user tokens: re-run `auth_user.py --email <email>` per persona.
+2. For the bot token: `python scripts/save_bot_token.py` (getpass).
+3. For user tokens: re-run `scripts/auth_user.py --email <email>` per persona.
 4. Reinstalling the app does NOT invalidate already-captured `xoxp-` tokens,
    so you usually only need to re-capture the bot token.

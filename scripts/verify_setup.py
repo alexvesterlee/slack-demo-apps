@@ -21,7 +21,7 @@ from pathlib import Path
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent  # repo root (this file is in scripts/)
 TOKENS_PATH = ROOT / "tokens.json"
 
 

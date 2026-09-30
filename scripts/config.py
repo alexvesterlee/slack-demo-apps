@@ -9,7 +9,9 @@ from typing import Any
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-ROOT = Path(__file__).resolve().parent
+# Repo root is one level up from this file (scripts/config.py). tokens.json,
+# .certs/, and the gitignored scenario files all live at the repo root.
+ROOT = Path(__file__).resolve().parent.parent
 TOKENS_PATH = ROOT / "tokens.json"
 
 

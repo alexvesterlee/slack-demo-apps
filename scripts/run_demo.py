@@ -15,7 +15,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
+SCRIPTS = Path(__file__).resolve().parent          # this file's dir (scripts/)
+ROOT = SCRIPTS.parent                               # repo root
 VENV_PYTHON = ROOT / ".venv" / "bin" / "python"
 
 
@@ -43,7 +44,7 @@ def main() -> int:
         # Delete previously sent messages before sending new ones
         if manifest.exists():
             print("Deleting previous messages...")
-            rc = run(ROOT / "examples" / "delete_dms.py", "--manifest", str(manifest))
+            rc = run(SCRIPTS / "delete_dms.py", "--manifest", str(manifest))
             if rc != 0:
                 print("[warn] Some previous messages could not be deleted — continuing\n")
             else:
@@ -51,7 +52,7 @@ def main() -> int:
             manifest.unlink(missing_ok=True)
 
         rc = run(
-            ROOT / "examples" / "send_dms_as_users.py",
+            SCRIPTS / "send_dms_as_users.py",
             "--config", str(ROOT / "my_demo.json"),
             "--manifest", str(manifest),
         )
@@ -68,7 +69,7 @@ def main() -> int:
         print("=" * 60)
         print("STEP 2: Updating Salesforce opportunity close dates")
         print("=" * 60)
-        rc = run(ROOT / "update_opportunities.py")
+        rc = run(SCRIPTS / "update_opportunities.py")
         if rc != 0:
             print("[warn] Salesforce step finished with errors\n")
             overall = 1
