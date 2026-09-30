@@ -370,20 +370,26 @@ tokens.)
 
 ---
 
-## Step 6 — Capture per-persona tokens
+## Step 6 — Capture user tokens (at least 5 users)
 
-**[Terminal]** — run this in a dedicated Terminal window, not Claude Code.
-(The script prints a URL, then waits for your browser to complete OAuth.
-You need to watch it live and have the window stay open.)
+> ## ⭐ Do this for at least 5 users
+>
+> Every user you capture here is someone Claude can post as. Demo
+> conversations need several people, so **capture at least 5 users before
+> moving on.** You'll decide who they are (names, titles, roles) later, demo
+> by demo. Right now you just need the tokens.
 
-For each user you want to impersonate (e.g., an AE persona, a customer
-persona, a deal-desk persona):
+**[Terminal]** — **open a new Terminal window**, separate from the one where
+you're talking to Claude. The script prints a link and then waits for you to
+approve it in your browser, so it needs its own window that stays open.
 
-**1. First, sign in as that persona.** Open an **incognito** browser window, go
-to **DemoZone**, and sign in to your demo org as the fictitious user you're
-capturing. Stay signed in. When the OAuth page opens in the next step, Slack
-asks *that* signed-in user to approve, so this is how the token ends up
-belonging to the persona and not to you.
+Repeat these three steps for each user:
+
+**1. First, sign in as that user.** Open an **incognito** browser window, go
+to **DemoZone**, and sign in to your demo org as one of its fictitious users.
+Stay signed in. When you approve the link in step 3, Slack gives the token to
+whoever is signed in, so this makes sure it belongs to that user and not to
+you.
 
 Demo org users have email addresses in this format:
 
@@ -391,25 +397,21 @@ Demo org users have email addresses in this format:
 demoeng+jennifer_hynes_12345@slack-corp.com
 ```
 
-(The persona's name, then a number unique to your demo org.)
-
-**2. Then run the script with that persona's email:**
+**2. Run the script with that user's email:**
 
 ```bash
 python -u scripts/auth_user.py --email demoeng+jennifer_hynes_12345@slack-corp.com
 ```
 
-> ⚠ Use `python -u` (unbuffered) so the OAuth URL prints **before** the
-> script blocks waiting for the callback.
+> ⚠ Use `python -u` (unbuffered) so the link prints **before** the script
+> starts waiting.
 
-The script will print an OAuth URL. **STOP** — read this carefully:
-
-**3. Paste the URL into the same incognito window** where you're signed in as
-the persona, then click **Allow**.
+**3. Paste the link into the same incognito window** where you're signed in as
+that user, then click **Allow**.
 
 > ⚠ **Critical:** do NOT approve it in your normal browser if you're signed in
 > there as someone else (e.g., your own admin account). Slack will silently
-> grant *that* user's token instead of the persona's.
+> give *your* token instead of the demo user's.
 
 > ℹ The script also tries to open your default browser as a convenience —
 > ignore that tab if it goes to the wrong account.
@@ -417,33 +419,18 @@ the persona, then click **Allow**.
 > ℹ Your browser will warn about the self-signed cert. Click
 > **advanced → proceed** to continue.
 
-After you authorize, the script:
-1. Captures the `xoxp-` token from the OAuth callback.
-2. Calls `auth.test` on the new token to find out which user it actually
-   belongs to.
-3. (If `app_token` is configured) calls `users.lookupByEmail(email)` to get
-   the user ID for the email you passed.
-4. **Refuses to save** if those don't match — and tells you to retry in
-   incognito.
+After you click Allow, the script checks that the token belongs to the email
+you entered and **refuses to save it if they don't match**. If that happens,
+retry in incognito. Each token is saved under `users` in `tokens.json`, keyed
+by email.
 
-> ⭐ **Important: repeat this for at least 5 personas.** Good demo
-> conversations involve several people, like an AE, a CSM, an SE, a manager,
-> and a customer contact. With only one or two personas, every thread and DM
-> looks like the same two people talking. Capture a handful now so Claude has
-> a full cast to work with.
->
-> Don't worry about getting names or roles right yet. You can change a
-> persona's name, title, and status later with this toolkit (just ask Claude,
-> e.g. *"rename this persona to Maria Lopez, VP of Sales"*), and their token
-> keeps working.
+> ℹ You can rename users or change their titles anytime later. Just ask
+> Claude. Their tokens keep working.
 
-Each persona is stored under `users` in `tokens.json`, keyed by email.
-
-> ℹ **Which persona can do what depends on the scopes it was captured with.**
-> A persona captured with only `chat:write` can post messages but *not* upload
+> ℹ **What a user can do depends on the scopes their token was captured with.**
+> A token captured with only `chat:write` can post messages but *not* upload
 > a file — you'll get `missing_scope needed=files:write:user`. Re-run
-> `scripts/auth_user.py` for that persona after widening `USER_SCOPES`, or pick a
-> persona that already has the scope for that role.
+> `scripts/auth_user.py` for that user after widening `USER_SCOPES`.
 
 ---
 
