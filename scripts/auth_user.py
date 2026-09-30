@@ -44,6 +44,7 @@ USER_SCOPES = [
     "groups:write",
     "im:write",
     "mpim:write",
+    "users:write",
 ]
 
 

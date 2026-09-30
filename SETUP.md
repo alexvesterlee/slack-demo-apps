@@ -141,18 +141,37 @@ in: the redirect URL plus all user and bot scopes. You don't toggle anything by 
            "channels:write",
            "groups:write",
            "im:write",
-           "mpim:write"
+           "mpim:write",
+           "users:write"
          ],
          "bot": [
            "chat:write",
            "chat:write.customize",
            "chat:write.public",
+           "users:read",
            "users:read.email",
+           "users.profile:read",
            "channels:read",
            "groups:read",
            "channels:manage",
            "groups:write",
-           "channels:join"
+           "channels:join",
+           "channels:write.invites",
+           "groups:write.invites",
+           "channels:history",
+           "groups:history",
+           "im:write",
+           "mpim:write",
+           "files:read",
+           "files:write",
+           "reactions:write",
+           "pins:write",
+           "bookmarks:write",
+           "canvases:read",
+           "canvases:write",
+           "lists:write",
+           "team:read",
+           "emoji:read"
          ]
        }
      },
@@ -204,6 +223,7 @@ the manifest):
 | `reactions:write` | Add emoji reactions as the persona |
 | `channels:write`, `groups:write` | Persona-level channel actions |
 | `im:write`, `mpim:write` | Open DMs / group DMs as the persona |
+| `users:write` | Set the persona's presence (show as active during a demo) |
 
 **Bot Token Scopes** (app notifications, channel admin, strict verification):
 
@@ -212,18 +232,38 @@ the manifest):
 | `chat:write` | Bot posts (app notification cards) |
 | `chat:write.customize` | Post those cards under a **custom name + icon** (e.g. "PagerDuty") |
 | `chat:write.public` | Post to public channels the bot hasn't joined |
-| `users:read.email` | Strict persona verification (email → user ID) |
+| `users:read`, `users:read.email` | Strict persona verification (email → user ID); `users:read.email` requires `users:read` |
+| `users.profile:read` | Read profiles (names, titles) when building content |
 | `channels:read`, `groups:read` | List/resolve channels |
 | `channels:manage`, `groups:write` | Create / rename / set topic / archive channels |
 | `channels:join` | Bot self-joins public channels (needed before archiving/inviting) |
+| `channels:write.invites`, `groups:write.invites` | Invite personas into channels |
+| `channels:history`, `groups:history` | Read existing channel messages (check content, clean up bot posts) |
+| `im:write`, `mpim:write` | Send app notifications in DMs / group DMs |
+| `files:read`, `files:write` | Upload files as the app (reports, exports) |
+| `reactions:write`, `pins:write`, `bookmarks:write` | Add reactions, pin messages, add channel bookmarks |
+| `canvases:read`, `canvases:write`, `lists:write` | Create and edit channel canvases and Lists |
+| `team:read`, `emoji:read` | Read workspace info and custom emoji |
+
+Not every scope has a ready-made script. Some (canvases, Lists, bookmarks,
+pins) are there so Claude can do those things on request without you having
+to reinstall the app first.
 
 </details>
 
-> ℹ **Adding a scope later?** Edit it under **OAuth & Permissions** (or the
-> app's **App Manifest** page), reinstall the app, and add it to `USER_SCOPES`
-> in `scripts/auth_user.py` if it's a user scope. **Scopes are baked into a
-> token at capture time**, so re-run `scripts/auth_user.py` for each persona to
-> pick it up.
+> ℹ **You can add more scopes later.** This manifest covers what the toolkit
+> uses plus a few common extras. If a specific demo needs more, such as
+> Workflow Builder steps, Agents & Assistants, custom link unfurls, or admin
+> APIs, add them anytime:
+> 1. In the app settings, open **App Manifest** (or **OAuth & Permissions**)
+>    and add the scope.
+> 2. **Reinstall** the app so the bot token picks it up.
+> 3. For a **user** (persona) scope, also add it to `USER_SCOPES` in
+>    `scripts/auth_user.py` and re-run `scripts/auth_user.py` for each persona.
+>    Scopes are baked into a token when it's captured.
+>
+> Only add what you'll use. Admin scopes (`admin.*`) in particular let a
+> token act on the whole org, and a leaked token would carry that power.
 
 ---
 
