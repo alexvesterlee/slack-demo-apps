@@ -191,12 +191,13 @@ scheduler at that command and you have a standing demo refresh.
 
 ```bash
 cd /path/to/slack-demo-generator && \
-  claude -p "refresh the demo" --permission-mode acceptEdits >> ~/demo-refresh.log 2>&1
+  claude -p "refresh the demo" --allowedTools "Bash" >> ~/demo-refresh.log 2>&1
 ```
 
 - `-p "refresh the demo"` runs your skill's trigger phrase non-interactively.
-- `--permission-mode acceptEdits` (or `--dangerously-skip-permissions` if your
-  flow needs to run many commands unattended) keeps it from blocking on prompts.
+- `--allowedTools "Bash"` pre-approves the shell commands the skill runs (the
+  Python scripts, `sf`). Headless runs can't answer permission prompts, so without
+  it every command is denied and the refresh silently does nothing.
   **Only use this for a flow you've tested by hand** and trust end to end.
 - Redirecting to a log file lets you see what happened after the fact.
 
@@ -217,7 +218,7 @@ Create `~/Library/LaunchAgents/com.you.demo-refresh.plist`:
   <array>
     <string>/bin/zsh</string>
     <string>-lc</string>
-    <string>cd /path/to/slack-demo-generator && claude -p "refresh the demo" --permission-mode acceptEdits >> $HOME/demo-refresh.log 2>&1</string>
+    <string>cd /path/to/slack-demo-generator && claude -p "refresh the demo" --allowedTools "Bash" >> $HOME/demo-refresh.log 2>&1</string>
   </array>
   <!-- Every Monday at 07:00 -->
   <key>StartCalendarInterval</key>
@@ -250,7 +251,7 @@ Add:
 
 ```cron
 # Every Monday at 07:00 — refresh the Slack + Salesforce demo
-0 7 * * 1 cd /path/to/slack-demo-generator && /usr/local/bin/claude -p "refresh the demo" --permission-mode acceptEdits >> $HOME/demo-refresh.log 2>&1
+0 7 * * 1 cd /path/to/slack-demo-generator && /usr/local/bin/claude -p "refresh the demo" --allowedTools "Bash" >> $HOME/demo-refresh.log 2>&1
 ```
 
 Use the **absolute path** to `claude` (find it with `which claude`) — cron has a

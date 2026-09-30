@@ -1,7 +1,7 @@
 {
   "app": "Jira Cloud",
   "fake_bot_id": "Jira",
-  "notes": "Jira Cloud for Slack issue notifications, matched to the REAL Slack app layout (verified against a live Jira Cloud message 2026-08). Fidelity rules: (1) the title is a bold mrkdwn LINK to the issue (`*<url|KEY-# Summary>*`) in a `section` \u2014 NOT a `header` block; (2) fields are inline in one mrkdwn line with small icons and bold values \u2014 `*Status:* In Progress  *Type:* Task  *Assignee:* <name>` then `*Priority:* Medium` \u2014 an \u2191/\u2193 arrow marks priority; (3) an `actions` row of real buttons \u2014 Assign, Change status, \u2728 AI Summarise \u2014 plus a trailing `static_select` placeholder 'More actions...'; (4) a small `context` footer 'Added by Jira Cloud'. Post as the Jira Cloud app via chat:write.customize with icon_url = <LOGO_BASE>/jira_cloud.png. UNFURL: to also unfurl the REAL work item beneath the card, pass send_app_notification.py --ticket-url <https://<site>.atlassian.net/browse/KEY-#>; the helper retargets the title link at that url, appends the BARE url to the message text (Slack only unfurls bare urls in `text`, never `<url|label>` links inside blocks), and sets unfurl_links=True. The real unfurl only renders if the Jira Cloud Slack app is installed in the target org and connected to that atlassian site. The `demo_real_unfurl` example below already points at a real ticket in the jenniferhynes.atlassian.net demo site.",
+  "notes": "Jira Cloud for Slack issue notifications, matched to the REAL Slack app layout (verified against a live Jira Cloud message 2026-08). Fidelity rules: (1) the title is a bold mrkdwn LINK to the issue (`*<url|KEY-# Summary>*`) in a `section` \u2014 NOT a `header` block; (2) fields are inline in one mrkdwn line with small icons and bold values \u2014 `*Status:* In Progress  *Type:* Task  *Assignee:* <name>` then `*Priority:* Medium` \u2014 an \u2191/\u2193 arrow marks priority; (3) an `actions` row of real buttons \u2014 Assign, Change status, \u2728 AI Summarise \u2014 plus a trailing `static_select` placeholder 'More actions...'; (4) a small `context` footer 'Added by Jira Cloud'. Post as the Jira Cloud app via chat:write.customize with icon_url = <LOGO_BASE>/jira_cloud.png. UNFURL: to also unfurl the REAL work item beneath the card, pass send_app_notification.py --ticket-url <https://<site>.atlassian.net/browse/KEY-#>; the helper retargets the title link at that url, appends the BARE url to the message text (Slack only unfurls bare urls in `text`, never `<url|label>` links inside blocks), and sets unfurl_links=True. The real unfurl only renders if the Jira Cloud Slack app is installed in the target org and connected to that atlassian site. Replace the placeholder url in the `demo_real_unfurl` example with a real ticket on your own Jira site.",
   "examples": [
     {
       "name": "issue_created",
@@ -108,13 +108,13 @@
     },
     {
       "name": "demo_real_unfurl",
-      "when": "A card that points at a REAL Jira ticket so Slack unfurls the live work item beneath it. Send with --ticket-url https://jenniferhynes.atlassian.net/browse/KAN-16 (the helper appends the bare url + enables unfurl_links). Requires the Jira Cloud Slack app installed in the target org.",
+      "when": "A card that points at a REAL Jira ticket so Slack unfurls the live work item beneath it. Send with --ticket-url https://your-site.atlassian.net/browse/KAN-16 (the helper appends the bare url + enables unfurl_links). Requires the Jira Cloud Slack app installed in the target org.",
       "blocks": [
         {
           "type": "section",
           "text": {
             "type": "mrkdwn",
-            "text": "*<https://jenniferhynes.atlassian.net/browse/KAN-16|KAN-16 Configure onboarding email template>*"
+            "text": "*<https://your-site.atlassian.net/browse/KAN-16|KAN-16 Configure onboarding email template>*"
           }
         },
         {

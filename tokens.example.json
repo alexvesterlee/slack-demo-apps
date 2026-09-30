@@ -8,7 +8,7 @@
   "users": {
     "_example": "Filled in automatically by auth_user.py — one entry per persona email"
   },
-  "_optional_audit_logging_comment": "Only fill in app_token + audit_channel_id if you want every send/delete logged to a Slack channel. See SETUP.md Step 8.",
+  "_app_token_comment": "Optional bot token (xoxb-) — set it with scripts/save_bot_token.py, don't paste here. Enables channel admin, strict persona verification, and app notifications (SETUP.md Steps 9-10). audit_channel_id is optional: if set, send/delete actions are logged to that channel.",
   "app_token": "",
   "audit_channel_id": ""
 }
