@@ -1,109 +1,150 @@
 #!/usr/bin/env python3
-"""Update Salesforce opportunity close dates for demo readiness.
+"""Roll Salesforce opportunity close dates forward so a demo org looks current.
 
-Priority accounts (Omega, Verde Group, Stellar Media) land in the next
-few weeks; all other open opportunities are spread across the following
-1-2 months.
+By default this spreads every OPEN opportunity (not Closed Won/Lost) evenly
+across the next several weeks, starting a few days out — so the pipeline looks
+freshly active whenever you demo. Optionally, you can pin specific "priority"
+opportunities to exact dates via a local `priority_opps.json` (see below).
+
+This is the SCRIPTED Salesforce path — it shells out to the `sf` CLI (install
+separately: `brew install --cask sf`, then `sf org login web`). Interactive,
+one-off reads are better done by asking Claude through the Salesforce MCP server.
+
+Config (nothing org-specific is hardcoded):
+    SF_ORG env var   — your `sf` org username or alias (required), e.g.
+                       `export SF_ORG=me@example.com` or `SF_ORG=demo-org`
+    --org <alias>    — overrides SF_ORG for one run
+    --start-days N   — first close date is N days from today (default 5)
+    --window-days N  — spread opps across this many days (default 45)
+
+Priority pinning (optional): create a `priority_opps.json` (gitignored) like:
+    [
+      {"id": "006XXXXXXXXXXXXXXX", "close_date": "2026-06-05"},
+      {"id": "006XXXXXXXXXXXXXXX", "close_date": "2026-06-12"}
+    ]
+Those ids are set to the exact dates given and excluded from the auto-spread.
 
 Usage:
-    .venv/bin/python update_opportunities.py
+    SF_ORG=me@example.com .venv/bin/python update_opportunities.py
+    .venv/bin/python update_opportunities.py --org demo-org --window-days 60
 """
 from __future__ import annotations
 
+import argparse
 import json
+import os
+import re
 import shutil
 import subprocess
 import sys
 from datetime import date, timedelta
+from pathlib import Path
 
-SF_ORG = "alexsdo1@salesforce.com"
+ROOT = Path(__file__).resolve().parent
+PRIORITY_FILE = ROOT / "priority_opps.json"  # optional, gitignored
 
-# Open opportunities for priority accounts — Closed Won/Lost excluded.
-# Dates are relative to late May 2026 (today ~2026-05-29).
-PRIORITY_UPDATES = [
-    # Omega, Inc. — week-by-week across June/July
-    ("006Hu00001giGfXIAU", "2026-06-05"),   # Omega Insurance - Services 23K  (Discovery)
-    ("006Hu00001giGdUIAU", "2026-06-12"),   # Omega Add-On 55K               (Discovery)
-    ("006Hu000022bkqmIAA", "2026-06-26"),   # Omega Core Renewal             (Negotiation)
-    ("006Hu00001giGc0IAE", "2026-07-03"),   # Omega New Business 317K        (Proposal/Quote)
-    ("006Hu00001giGeyIAE", "2026-07-10"),   # Omega New Business 44K         (Discovery)
-    ("006Hu00001gNGPSIA4", "2026-07-17"),   # Omega Enterprise Expansion     (Prospecting)
-    # Stellar Media
-    ("006Hu0000207W8AIAU", "2026-06-16"),   # Stellar Media                  (Qualification)
-    # Verde Group — week-by-week across June
-    ("006Hu0000206FflIAE", "2026-06-06"),   # Verde New Business 80K         (Qualification)
-    ("006Hu00001gN1oMIAS", "2026-06-13"),   # Verde Add-On 75K               (Qualification)
-    ("006Hu00001gN1o2IAC", "2026-06-20"),   # Verde Add-On 19K               (Qualification)
-    ("006Hu0000205ursIAA", "2026-06-27"),   # Verde Welo Guard 120K          (Proposal/Quote)
-]
+# The `sf` CLI emits ANSI color escapes even with --json unless color is
+# disabled, which breaks json.loads ("Expecting value: line 1 column 1").
+# Force color off in the subprocess env and strip any escapes defensively.
+_NO_COLOR_ENV = dict(os.environ, NO_COLOR="1", FORCE_COLOR="0")
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
-PRIORITY_IDS = {opp_id for opp_id, _ in PRIORITY_UPDATES}
+
+def _parse_sf_json(raw: str) -> dict:
+    return json.loads(_ANSI_RE.sub("", raw))
 
 
 def sf_bin() -> str:
     found = shutil.which("sf") or shutil.which("sf", path="/opt/homebrew/bin")
     if not found:
-        sys.exit("Error: 'sf' CLI not found. Run: brew install sf")
+        sys.exit("Error: 'sf' CLI not found. Install it: brew install --cask sf")
     return found
 
 
-def sf_query(soql: str) -> list[dict]:
+def sf_query(org: str, soql: str) -> list[dict]:
     result = subprocess.run(
-        [sf_bin(), "data", "query", "-o", SF_ORG, "--query", soql, "--json"],
-        capture_output=True, text=True,
+        [sf_bin(), "data", "query", "-o", org, "--query", soql, "--json"],
+        capture_output=True, text=True, env=_NO_COLOR_ENV,
     )
-    data = json.loads(result.stdout)
+    data = _parse_sf_json(result.stdout)
     if data.get("status") != 0:
         raise RuntimeError(f"Query failed: {data.get('message', result.stdout)}")
     return data["result"]["records"]
 
 
-def sf_update(record_id: str, close_date: str) -> bool:
+def sf_update(org: str, record_id: str, close_date: str) -> bool:
     result = subprocess.run(
-        [sf_bin(), "data", "update", "record", "-o", SF_ORG,
+        [sf_bin(), "data", "update", "record", "-o", org,
          "--sobject", "Opportunity",
          "--record-id", record_id,
          "--values", f"CloseDate={close_date}",
          "--json"],
-        capture_output=True, text=True,
+        capture_output=True, text=True, env=_NO_COLOR_ENV,
     )
-    data = json.loads(result.stdout)
+    data = _parse_sf_json(result.stdout)
     return data.get("status") == 0
 
 
+def load_priority() -> list[dict]:
+    if not PRIORITY_FILE.exists():
+        return []
+    try:
+        return json.loads(PRIORITY_FILE.read_text())
+    except json.JSONDecodeError as e:
+        sys.exit(f"Error: {PRIORITY_FILE.name} is not valid JSON ({e})")
+
+
 def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--org", default=os.environ.get("SF_ORG", ""),
+                    help="sf org username or alias (or set SF_ORG)")
+    ap.add_argument("--start-days", type=int, default=5,
+                    help="first close date is N days from today (default 5)")
+    ap.add_argument("--window-days", type=int, default=45,
+                    help="spread open opps across this many days (default 45)")
+    args = ap.parse_args()
+
+    if not args.org:
+        sys.exit("Error: no Salesforce org. Set SF_ORG or pass --org <alias>.")
+
     failures = 0
+    priority = load_priority()
+    priority_ids = {p["id"] for p in priority}
 
-    # --- Priority accounts ---
-    print("Updating priority accounts (Omega, Verde Group, Stellar Media)...")
-    for opp_id, close_date in PRIORITY_UPDATES:
-        ok = sf_update(opp_id, close_date)
-        print(f"  {'✓' if ok else '✗'} {opp_id}  →  {close_date}")
-        if not ok:
-            failures += 1
+    # --- Priority opportunities (optional, exact dates) ---
+    if priority:
+        print(f"Pinning {len(priority)} priority opportunit(ies) to exact dates...")
+        for p in priority:
+            ok = sf_update(args.org, p["id"], p["close_date"])
+            print(f"  {'OK ' if ok else 'ERR'} {p['id']}  ->  {p['close_date']}")
+            failures += 0 if ok else 1
 
-    # --- All other open opportunities ---
-    print("\nQuerying other open opportunities...")
-    excluded = "','".join(PRIORITY_IDS)
+    # --- All other open opportunities: spread across the window ---
+    print("\nQuerying open opportunities...")
+    exclude = ""
+    if priority_ids:
+        joined = "','".join(priority_ids)
+        exclude = f"AND Id NOT IN ('{joined}') "
     records = sf_query(
+        args.org,
         f"SELECT Id, Name FROM Opportunity "
         f"WHERE StageName NOT IN ('Closed Won', 'Closed Lost') "
-        f"AND Id NOT IN ('{excluded}') "
+        f"{exclude}"
         f"ORDER BY CloseDate ASC"
     )
 
     if records:
-        print(f"Spreading {len(records)} other open opportunities across July–August 2026...")
-        start = date(2026, 7, 1)
-        # Aim to spread evenly across ~62 days; minimum 3-day gaps to keep it readable
-        step = max(3, 62 // len(records))
+        print(f"Spreading {len(records)} open opportunit(ies) across the next "
+              f"{args.window_days} days...")
+        start = date.today() + timedelta(days=args.start_days)
+        step = max(1, args.window_days // max(1, len(records)))
         for i, rec in enumerate(records):
             target = (start + timedelta(days=i * step)).isoformat()
-            ok = sf_update(rec["Id"], target)
+            ok = sf_update(args.org, rec["Id"], target)
             name = rec["Name"][:55]
-            print(f"  {'✓' if ok else '✗'} {name:<55}  →  {target}")
-            if not ok:
-                failures += 1
+            print(f"  {'OK ' if ok else 'ERR'} {name:<55}  ->  {target}")
+            failures += 0 if ok else 1
     else:
         print("  No other open opportunities found.")
 

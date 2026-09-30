@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
-"""Publish the local Block Kit notification templates (blockkit/*.json) to the
-public alexvesterlee/slack-demo-apps repo (under a `blockkit/` folder) via the
-GitHub Contents API — no local clone. This makes the customized card layouts
-(e.g. the real-Jira-ticket examples) available to anyone, not just this machine.
+"""Publish the local Block Kit notification templates (blockkit/*.json) to YOUR
+public assets repo (under a `blockkit/` folder) via the GitHub Contents API — no
+local clone. This makes your customized card layouts available to any machine.
 
-Reuses the SAME GitHub PAT as push_logos.py. Token is read from env GHT, then the
-macOS Keychain — never typed into chat:
+Point this at your own repo with the DEMO_ASSETS_REPO env var ("owner/repo");
+it defaults to a placeholder you MUST change. Reuses the SAME GitHub PAT as
+push_logos.py (env GHT, then macOS Keychain — never typed into chat):
 
-    read -rs "GHT?GitHub PAT (Contents: read/write on slack-demo-apps): "; echo
+    export DEMO_ASSETS_REPO="your-github-username/slack-demo-apps"
+    read -rs "GHT?GitHub PAT (Contents: read/write on that repo): "; echo
     GHT="$GHT" python3 push_blockkit.py
 
 Add/update a template later: edit a blockkit/<key>.json next to this script and
 re-run — every *.json in ./blockkit is uploaded.
 
-The paired reader, send_app_notification.py, falls back to
-  https://raw.githubusercontent.com/alexvesterlee/slack-demo-apps/main/blockkit/<key>.json
-when a template isn't present locally, so a fresh clone with no blockkit/ dir
-still works.
+The paired reader, send_app_notification.py, falls back to the same repo's raw
+URL when a template isn't present locally, so a fresh clone with no blockkit/
+dir still works (as long as DEMO_ASSETS_REPO matches).
 """
 import base64
 import glob
@@ -27,9 +27,10 @@ import sys
 import urllib.request
 import urllib.error
 
-OWNER = "alexvesterlee"
-REPO = "slack-demo-apps"
-BRANCH = "main"
+# Your PUBLIC assets repo, as "owner/repo". Override via DEMO_ASSETS_REPO.
+_REPO = os.environ.get("DEMO_ASSETS_REPO", "your-github-username/slack-demo-apps")
+OWNER, _, REPO = _REPO.partition("/")
+BRANCH = os.environ.get("DEMO_ASSETS_BRANCH", "main")
 API = f"https://api.github.com/repos/{OWNER}/{REPO}/contents"
 
 # Same Keychain item as push_logos.py (Contents: read/write on slack-demo-apps).
@@ -59,10 +60,10 @@ if not TOKEN:
 HERE = os.path.dirname(os.path.abspath(__file__))
 LOCAL_BLOCKKIT_DIR = os.path.join(HERE, "blockkit")
 
-README = """# slack-demo-apps · blockkit
+README = """# Block Kit templates
 
 Public **Block Kit card layouts** for the fictitious third-party app notifications posted
-into the demo Slack org by `send_app_notification.py`.
+into a Slack demo org by `send_app_notification.py`.
 
 One JSON file per app, named by its block-kit key (`salesforce.json`, `jira_cloud.json`, …).
 Each file:
@@ -83,7 +84,7 @@ Each file:
 `../logos/<key>.png` as the avatar. When a template isn't present locally the helper
 fetches it from:
 
-    https://raw.githubusercontent.com/alexvesterlee/slack-demo-apps/main/blockkit/<key>.json
+    https://raw.githubusercontent.com/<owner>/<repo>/<branch>/blockkit/<key>.json
 
 Structures originate from the bob-the-builder library
 (https://github.com/evanbrosen/bob-the-builder/tree/main/blockkit) and are customized here

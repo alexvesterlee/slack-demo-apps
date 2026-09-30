@@ -204,7 +204,7 @@ def resolve_user(who: str) -> str | None:
     """Resolve a user reference -> id. Accepts a raw id (U...), an email, or a
     display/real name. Works for ANY org member, not just personas."""
     if who.startswith("U") and len(who) >= 9 and who[1:].isalnum():
-        return who  # already a user id (e.g. U0810FBP55M)
+        return who  # already a user id (e.g. U0123456789)
     if "@" in who:
         return user_id_for_email(who)
     return user_id_for_name(who)

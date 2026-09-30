@@ -18,6 +18,31 @@ sent.json
 # Org-specific demo content (real persona emails / channel IDs). Keep only the
 # *.example.json templates in the repo; author your own scenario files locally.
 /*_thread*.json
+/thread_*.json
 /channel_messages.json
 /my_demo.json
 /omega_thread.json
+
+# Exact-date opportunity pins for update_opportunities.py — holds real SF opp
+# IDs, so it stays local.
+/priority_opps.json
+
+# Local, one-off scenario builders that hard-code a specific org's account
+# names, opportunity/case IDs, and channel IDs. These are personal recipes, not
+# part of the shared toolkit — keep them out of the repo. Author your own
+# locally; see examples/skills/ for a sanitized, reusable pattern instead.
+/seed_*.py
+/case_channels*.py
+/fill_today_highlights.py
+/build_headcount_deck.py
+/*_convo.py
+/*_consolidate.py
+/*_restore.json
+/*_redo.py
+/rename_*.py
+/clear_*.py
+/*omega*.py
+/*omega*.json
+/*acme*.py
+/*acme*.json
+/architecture.html

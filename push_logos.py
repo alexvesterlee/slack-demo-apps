@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
-"""Commit logo assets + README directly into alexvesterlee/slack-demo-apps via the
-GitHub Contents API — no local clone. Token is read from env GHT (set it via an
-interactive prompt so it never lands in shell history):
+"""Commit logo assets + README into YOUR public assets repo via the GitHub
+Contents API — no local clone. Slack needs a publicly reachable image URL for a
+custom app icon, so app-notification logos live in a public GitHub repo you own.
 
-    read -rs -p "GitHub PAT (Contents: read/write on slack-demo-apps): " GHT; echo
+Point this at your own repo with the DEMO_ASSETS_REPO env var ("owner/repo");
+it defaults to a placeholder you MUST change. Token is read from env GHT (set it
+via an interactive prompt so it never lands in shell history):
+
+    export DEMO_ASSETS_REPO="your-github-username/slack-demo-apps"
+    read -rs -p "GitHub PAT (Contents: read/write on that repo): " GHT; echo
     GHT="$GHT" python3 push_logos.py
 
 Add more logos later: drop <blockkit-key>.png files into a local `logos/` dir next
@@ -18,9 +23,10 @@ import sys
 import urllib.request
 import urllib.error
 
-OWNER = "alexvesterlee"
-REPO = "slack-demo-apps"
-BRANCH = "main"
+# Your PUBLIC assets repo, as "owner/repo". Override via DEMO_ASSETS_REPO.
+_REPO = os.environ.get("DEMO_ASSETS_REPO", "your-github-username/slack-demo-apps")
+OWNER, _, REPO = _REPO.partition("/")
+BRANCH = os.environ.get("DEMO_ASSETS_BRANCH", "main")
 API = f"https://api.github.com/repos/{OWNER}/{REPO}/contents"
 
 # macOS Keychain item that stores the GitHub PAT, so this script (and Claude, on
@@ -51,20 +57,18 @@ if not TOKEN:
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 LOCAL_LOGO_DIR = os.path.join(HERE, "logos")
-SKILL_DATADOG = os.path.expanduser(
-    "~/.claude/skills/demo-refresh/assets/logos/datadog.png")
 
-README = """# slack-demo-apps
+README = f"""# {REPO}
 
-Public logo assets for **fictitious third-party app notifications** posted into the demo
-Slack org by the `demo-refresh` skill's `send_app_notification.py` helper.
+Public logo assets for **fictitious third-party app notifications** posted into a
+Slack demo org by `send_app_notification.py`.
 
 Slack's `icon_url` needs a publicly reachable image URL, so logos live here and are served
 over `raw.githubusercontent.com`. The helper builds each avatar as:
 
     icon_url = <LOGO_BASE>/<blockkit-key>.png
 
-with `LOGO_BASE = https://raw.githubusercontent.com/alexvesterlee/slack-demo-apps/main/logos`.
+with `LOGO_BASE = https://raw.githubusercontent.com/{OWNER}/{REPO}/{BRANCH}/logos`.
 
 ## Naming convention
 
@@ -123,16 +127,14 @@ def main():
     # README first (also bootstraps the default branch on an empty repo)
     put_file("README.md", README.encode(), "Add README (logo naming convention)")
 
-    # Collect logos: any ./logos/*.png, plus the canonical datadog.png from the skill
+    # Collect logos: any ./logos/*.png
     files = {}
     if os.path.isdir(LOCAL_LOGO_DIR):
         for p in glob.glob(os.path.join(LOCAL_LOGO_DIR, "*.png")):
             files[os.path.basename(p)] = p
-    if os.path.exists(SKILL_DATADOG):
-        files.setdefault("datadog.png", SKILL_DATADOG)
 
     if not files:
-        print("[note] no PNGs found in ./logos or the skill — README only")
+        print("[note] no PNGs found in ./logos — README only")
     for name, src in sorted(files.items()):
         with open(src, "rb") as f:
             put_file(f"logos/{name}", f.read(), f"Add/update logo {name}")

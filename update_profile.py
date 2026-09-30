@@ -8,7 +8,7 @@ Available profiles are defined in DEMO_PROFILES below.
 
 Example:
     .venv/bin/python update_profile.py \
-        --email demoeng+elliot_edwards_13583@slack-corp.com \
+        --email persona@yourorg.com \
         --profile vp_sales
 """
 from __future__ import annotations

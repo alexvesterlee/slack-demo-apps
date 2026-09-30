@@ -41,6 +41,12 @@ Open this folder in Claude Code and ask: *"help me set this up."*
 [CLAUDE.md](CLAUDE.md) tells Claude how to handle the gotchas (incognito for
 OAuth, never paste tokens in chat, what to do if verification fails, etc.).
 
+Once you're set up, [USING_CLAUDE.md](USING_CLAUDE.md) is the end-to-end guide to
+actually *driving* demos with Claude: building content in plain English,
+packaging the flows you repeat into a reusable **skill**, and running that skill
+**on a schedule** (e.g. a Monday-morning refresh that bumps Salesforce dates and
+reseeds channels/DMs on its own).
+
 ## What's in here
 
 | Area | Files |

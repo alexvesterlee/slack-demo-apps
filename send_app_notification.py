@@ -18,13 +18,13 @@ Examples:
   # List the apps/examples available in the library
   .venv/bin/python send_app_notification.py --list
 
-  # Post Datadog's "monitor_triggered" card into #critical-incidents (dry-run first)
+  # Post Datadog's "monitor_triggered" card into a channel (dry-run first)
   .venv/bin/python send_app_notification.py --app datadog --example monitor_triggered \\
-      --channel C0AT84Z21L1 --icon-emoji :dog: --dry-run
+      --channel C0123456789 --icon-emoji :dog: --dry-run
 
-  # Actually send it
+  # Actually send it (pass a channel id C... or a #channel-name)
   .venv/bin/python send_app_notification.py --app datadog --example monitor_triggered \\
-      --channel C0AT84Z21L1 --icon-emoji :dog:
+      --channel "#critical-incidents" --icon-emoji :dog:
 """
 import argparse
 import json
@@ -36,27 +36,25 @@ import urllib.request
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-# Where to fetch a blockkit/<key>.json when it isn't present locally. Points at
-# the user's PUBLIC repo (customized templates — real Jira ticket links, etc.),
-# so a fresh clone with no local blockkit/ dir still works and anyone can pull
-# them. Templates originate from the bob-the-builder library and are published
-# here by push_blockkit.py. Override via env DEMO_BLOCKKIT_BASE.
-RAW_BASE = os.environ.get(
-    "DEMO_BLOCKKIT_BASE",
-    "https://raw.githubusercontent.com/alexvesterlee/slack-demo-apps/main/blockkit",
-).rstrip("/")
+# YOUR public assets repo ("owner/repo"), where logos + blockkit templates live.
+# Slack needs a public image URL for a custom app icon, so these are served over
+# raw.githubusercontent. Set DEMO_ASSETS_REPO to your own repo (it defaults to a
+# placeholder). push_logos.py / push_blockkit.py publish into the same repo.
+_ASSETS_REPO = os.environ.get("DEMO_ASSETS_REPO", "your-github-username/slack-demo-apps")
+_ASSETS_BRANCH = os.environ.get("DEMO_ASSETS_BRANCH", "main")
+_ASSETS_RAW = f"https://raw.githubusercontent.com/{_ASSETS_REPO}/{_ASSETS_BRANCH}"
+
+# Where to fetch a blockkit/<key>.json when it isn't present locally, so a fresh
+# clone with no local blockkit/ dir still works. Override via DEMO_BLOCKKIT_BASE.
+RAW_BASE = os.environ.get("DEMO_BLOCKKIT_BASE", f"{_ASSETS_RAW}/blockkit").rstrip("/")
 LOCAL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "blockkit")
 
 # Base URL of the hosted logo folder. Each app posts with
 #   icon_url = f"{LOGO_BASE}/<key>.png"
 # so notifications render with the real app logo (only if that <key>.png actually
 # exists in the repo — Slack silently falls back if the URL 404s). Override via
-# env DEMO_LOGO_BASE or --logo-base. Points at the user's public logo repo:
-#   https://github.com/alexvesterlee/slack-demo-apps  (served over raw.githubusercontent)
-LOGO_BASE = os.environ.get(
-    "DEMO_LOGO_BASE",
-    "https://raw.githubusercontent.com/alexvesterlee/slack-demo-apps/main/logos",
-).rstrip("/")
+# env DEMO_LOGO_BASE or --logo-base.
+LOGO_BASE = os.environ.get("DEMO_LOGO_BASE", f"{_ASSETS_RAW}/logos").rstrip("/")
 
 # Sensible default icon_emoji per app when no --icon-url/--icon-emoji is given.
 # Override with a real logo via --icon-url for the most convincing impersonation.

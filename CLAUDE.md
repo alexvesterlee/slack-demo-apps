@@ -11,6 +11,14 @@ how to install and implement this project.
 - **Setup help** — walk the user through `SETUP.md` one step at a time. Don't
   paste long blocks of commands; pause after each step and confirm before
   moving on.
+- **Beyond setup, point at `USING_CLAUDE.md`.** It's the end-to-end guide for
+  driving demos: building content in plain English, packaging repeat flows into
+  a reusable skill (`~/.claude/skills/<name>/SKILL.md`), and scheduling that
+  skill headless via `claude -p "<trigger>"` (launchd/cron) for a recurring
+  refresh. A sanitized skill template lives at
+  `examples/skills/demo-refresh/SKILL.md` — offer to copy it into
+  `~/.claude/skills/` and fill in the user's org specifics when they want a
+  repeatable or scheduled refresh.
 - **Respect the [Claude Code] vs [Terminal] tags in SETUP.md.** For
   `[Claude Code]` steps, just run the command yourself via the Bash tool
   and show the user the result. For `[Terminal]` steps, **don't run them
@@ -37,7 +45,8 @@ how to install and implement this project.
 
 - **Never ask the user to paste a token into the chat.** Always route them
   through `auth_user.py` (browser OAuth) for `xoxp-` user tokens or
-  `save_bot_token.py` (getpass) for the optional `xoxb-` audit-logging token.
+  `save_bot_token.py` (getpass) for the optional `xoxb-` bot token (channel
+  admin, strict verification, app notifications).
   Re-pasting tokens in chat re-leaks them into transcripts/logs.
 - **Don't fabricate features.** This toolkit does NOT include AI agents. If
   asked for those, say so.
@@ -49,11 +58,12 @@ how to install and implement this project.
     can be staged easily in Slack. See "Channel admin toolbox" and the Grid
     notes below.
 
-## Channel admin & Enterprise Grid (2026-07 expansion)
+## Channel admin & Enterprise Grid
 
-This org is **Enterprise Grid** (workspace demo-13583 "Global", enterprise
-`E081F1M8TAN`). The bot token (`app_token`) carries channel scopes:
-`channels:read`, `groups:read`, `channels:manage`, `groups:write`,
+Many demo orgs are **Enterprise Grid** (a workspace nested under an enterprise
+`E...` id). If the user's org is Grid, the quirks below apply; on a standalone
+workspace they're mostly harmless. The bot token (`app_token`) carries channel
+scopes: `channels:read`, `groups:read`, `channels:manage`, `groups:write`,
 `channels:join`. Hard-won quirks — don't rediscover them:
 
 - **Grid needs `team_id`** on `conversations.list` and `conversations.create`
@@ -66,7 +76,10 @@ This org is **Enterprise Grid** (workspace demo-13583 "Global", enterprise
   persona's own token `auth.test` (see `channel_admin.persona_user_id`).
 - After any bot-token rotation, run `.venv/bin/python check_bot_token.py` to
   confirm the token installed to the RIGHT org (a reinstall can silently land
-  in the wrong Grid org → `team_access_not_granted`).
+  in the wrong Grid org → `team_access_not_granted`). To make that check
+  assert a specific org, set `EXPECTED_ENTERPRISE_ID` (and optionally
+  `CHECK_CHANNEL`) in the environment first; without them the script just
+  reports what it sees.
 
 Toolbox: `channel_admin.py` (CLI + library), `preflight.py` (validate configs
 + heal membership before sending), `archive_channel.py`, `check_bot_token.py`.

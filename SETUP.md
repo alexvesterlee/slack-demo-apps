@@ -22,6 +22,10 @@ Setup is one-time, ~15–20 minutes. You can do the minimum (personas + messages
 first and add the optional pieces (app notifications, channel admin, MCP data)
 whenever you need them.
 
+> **Already set up?** [USING_CLAUDE.md](USING_CLAUDE.md) is the next guide: how
+> to build demos with Claude in plain English, package repeat flows into a
+> reusable skill, and run that skill on a schedule (e.g. a Monday refresh).
+
 > **New to this? Read the [architecture 101](#how-it-fits-together) at the
 > bottom first** — one diagram of how Claude, this folder, and Slack connect.
 
@@ -92,10 +96,11 @@ directly instead of activating.
   > bottom of this file. Every other command is identical.
 - **macOS, Linux, or Windows** — the toolkit generates its own OAuth cert
   using a pure-Python library, so you don't need `openssl` installed.
-- **(Optional) A GitHub account + a fine-grained PAT** — only if you want to
-  post app-style notification cards. Logos and Block Kit templates are served
-  from a public GitHub repo (Slack needs a public URL for a custom app icon).
-  See [Step 10](#step-10-optional--app-style-notifications).
+- **(Optional) A GitHub account + a fine-grained PAT** — *not* needed to post
+  app-style notification cards (the layouts and logos ship in this repo). Only
+  needed if you want to host your **own** custom app logos as message avatars,
+  since Slack requires a public URL for a custom icon. See
+  [Step 10](#step-10-optional--app-style-notifications).
 - **(Optional) MCP servers** — only if you want to ground content in real data
   (Salesforce, Jira/Atlassian, ServiceNow, …). Configured in Claude Code, not
   here. See [Step 11](#step-11-optional--ground-content-in-real-data-mcp).
@@ -316,11 +321,12 @@ message plus threaded replies from different personas.
 
 ---
 
-## Step 9 (optional) — Audit logging & channel management
+## Step 9 (optional) — Channel management
 
-The **bot token** unlocks two things at once: audit logging, and channel
-administration. (It also backs strict verification in Step 7 and app
-notifications in Step 10 — one bot token serves all of them.)
+The **bot token** unlocks channel administration — creating, renaming,
+setting topics on, and archiving channels. (The same bot token also backs
+strict verification in Step 7 and app notifications in Step 10 — one bot token
+serves all of them.)
 
 1. Make sure the **Bot Token Scopes** from [Step 2](#step-2-configure-oauth-scopes)
    are added and the app is (re)installed.
@@ -339,12 +345,8 @@ notifications in Step 10 — one bot token serves all of them.)
    ```bash
    python check_bot_token.py
    ```
-5. **(Audit logging)** Create a channel (e.g. `#demo-audit-log`), copy its
-   channel ID (starts with `C`), and set `audit_channel_id` in `tokens.json`.
-   Every persona send/delete then logs there automatically. If you skip this,
-   audit logging silently no-ops — the toolkit still works.
-6. **(Channel management)** With the bot token saved, `channel_admin.py`
-   can resolve / create / rename / set-topic / archive channels:
+5. With the bot token saved, `channel_admin.py` can resolve / create / rename /
+   set-topic / archive channels:
    ```bash
    python channel_admin.py --help
    ```
@@ -365,35 +367,50 @@ notifications in Step 10 — one bot token serves all of them.)
 Post cards that look like they came from a third-party app — PagerDuty,
 Salesforce, Jira, Docusign, etc. These go out via the **bot token** using
 `chat:write.customize` (custom username + icon), so they carry the app's name
-and logo and an `APP` badge. (They are *not* recorded in `sent.json`; delete
-them manually with `chat.delete` if needed.)
+and an `APP` badge. (They are *not* recorded in `sent.json`; delete them
+manually with `chat.delete` if needed.)
 
-Two ingredients live in this repo:
+**No GitHub account is required.** Both ingredients already ship in this repo,
+so a fresh clone can post cards out of the box:
 
-- `blockkit/<app>.json` — the card layout(s) for each app (Block Kit).
-- `logos/<app>.png` — the app icon.
+- `blockkit/<app>.json` — the card layout(s) for each app (Block Kit). Read
+  straight from the local folder; nothing to fetch.
+- `logos/<app>.png` — the app icons, bundled here too.
 
-Slack needs a **public URL** for the custom icon, so logos and templates are
-served from a public GitHub repo via `raw.githubusercontent.com`. Publish new
-or changed assets with:
-
-```bash
-python push_logos.py       # uploads logos/*.png to the public repo
-python push_blockkit.py    # uploads blockkit/*.json to the public repo
-```
-
-> ⚠ These need a GitHub token. Provide it via the `GHT` environment variable
-> or the macOS Keychain — **never paste it into chat.** If Claude Code's
-> sandbox can't reach Keychain, run the push with the sandbox disabled.
-
-Then post a card:
+Post a card:
 
 ```bash
 python send_app_notification.py --app pagerduty --example <example_name> --channel <C...>
 ```
 
-(`send_app_notification.py --help` lists apps and examples.) The card text can
-be grounded in real data — see Step 11.
+(`send_app_notification.py --help` lists the apps and examples.) The card text
+can be grounded in real data — see Step 11.
+
+### About the app logo (the avatar)
+
+The one thing Slack won't accept from a local file is the **custom icon**: an
+`icon_url` must be a **publicly reachable URL**, not a file on disk. You have
+three choices, easiest first:
+
+1. **Use an emoji avatar (zero setup).** Pass `--icon-emoji :rotating_light:`
+   (or let the per-app default apply). The card posts fine — it just shows an
+   emoji instead of the real logo. Good enough for most demos.
+2. **Point at an already-public logo URL (no account, no PAT).** If the logos
+   are hosted somewhere public — including this repo's own `logos/` folder once
+   it's on GitHub — set `DEMO_LOGO_BASE` to that raw base and the helper builds
+   `icon_url = <base>/<app>.png` for you:
+   ```bash
+   export DEMO_LOGO_BASE="https://raw.githubusercontent.com/<owner>/<repo>/<branch>/logos"
+   ```
+3. **Host your own logos (needs a GitHub account + PAT).** Only if you want to
+   add or customize logos: set `DEMO_ASSETS_REPO="<your-username>/<your-repo>"`
+   and publish with `push_logos.py` / `push_blockkit.py` (these upload via the
+   GitHub Contents API). Provide the token via the `GHT` env var or the macOS
+   Keychain — **never paste it into chat.**
+
+Icon precedence in the helper: `--icon-url` → `--icon-emoji` →
+`DEMO_LOGO_BASE`/`<app>.png` → per-app emoji fallback. So if you set nothing,
+you still get a recognizable emoji avatar.
 
 ---
 
@@ -404,10 +421,11 @@ amounts, stages, and dates all line up. There are **two ways** the toolkit
 reaches that data — you'll use both, for different jobs:
 
 **A. Live, interactive reads — via an MCP server.** When you ask Claude Code in
-plain English — e.g. *"pull the open Omega renewal opp and write a thread about
-it in the Omega channel"* — Claude queries the connected **MCP server**, then
-uses the persona / app-notification scripts above to post the result. MCP
-servers are configured in **Claude Code itself** (not in this repo).
+plain English — e.g. *"pull the open renewal opportunity for <account> and write
+a thread about it in that account's channel"* — Claude queries the connected
+**MCP server**, then uses the persona / app-notification scripts above to post
+the result. MCP servers are configured in **Claude Code itself** (not in this
+repo).
 
 - **Salesforce** — read an opportunity's name, amount, stage, close date, then
   seed a matching deal-team thread.
@@ -572,8 +590,6 @@ That's why this runs in a **terminal / Claude Code**, not the Claude desktop
 app: it needs to run local scripts and hold local files (your tokens, the
 `.venv`). The desktop app can talk to MCP servers but can't run this folder's
 code or reach your local keys.
-
-See `architecture_slide.png` for the one-slide version of this.
 
 ---
 
