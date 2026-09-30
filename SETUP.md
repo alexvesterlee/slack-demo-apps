@@ -107,63 +107,123 @@ directly instead of activating.
 
 ---
 
-## Step 1 — Create the Slack app
+## Step 1 — Create the Slack app (from a manifest)
 
-1. Go to https://api.slack.com/apps → **Create New App** → **From scratch**.
-2. Name it anything (e.g., `Demo Content Helper`). Pick your demo workspace.
+A manifest creates the app with every setting the toolkit needs already filled
+in: the redirect URL plus all user and bot scopes. You don't toggle anything by hand.
+
+1. Go to https://api.slack.com/apps → **Create New App** → **From a manifest**.
+2. Pick your demo workspace → **Next**.
+3. Choose the **JSON** tab, delete the sample, and paste this:
+
+   ```json
+   {
+     "display_information": {
+       "name": "Demo Content Helper"
+     },
+     "features": {
+       "bot_user": {
+         "display_name": "Demo Content Helper",
+         "always_online": false
+       }
+     },
+     "oauth_config": {
+       "redirect_urls": [
+         "https://localhost:3000/oauth/callback"
+       ],
+       "scopes": {
+         "user": [
+           "chat:write",
+           "users.profile:read",
+           "users.profile:write",
+           "files:write",
+           "reactions:write",
+           "channels:write",
+           "groups:write",
+           "im:write",
+           "mpim:write"
+         ],
+         "bot": [
+           "chat:write",
+           "chat:write.customize",
+           "chat:write.public",
+           "users:read.email",
+           "channels:read",
+           "groups:read",
+           "channels:manage",
+           "groups:write",
+           "channels:join"
+         ]
+       }
+     },
+     "settings": {
+       "org_deploy_enabled": false,
+       "socket_mode_enabled": false,
+       "token_rotation_enabled": false
+     }
+   }
+   ```
+
+   > ✏️ **The only thing you might edit:** `name` (under `display_information`)
+   > and `display_name` (under `bot_user`). This is what the app is called in
+   > your workspace. Change both to whatever you like. Leave everything else
+   > as-is.
+
+4. **Next** → review the summary → **Create**.
 
 > One app carries **both** kinds of token you'll use: **User tokens**
 > (`xoxp-`, one per persona — these post as real people) and a single **Bot
 > token** (`xoxb-` — this posts app notifications, manages channels, and does
-> strict verification). You add scopes for each below.
+> strict verification). The manifest grants the scopes for both.
 
 ---
 
-## Step 2 — Configure OAuth scopes
+## Step 2 — Install the app
 
-In the app settings, go to **OAuth & Permissions**.
+In the app settings, go to **OAuth & Permissions** (or **Install App**) →
+**Install to Workspace** → **Allow**. That's it. Scopes and the redirect URL
+came from the manifest.
 
-1. Under **Redirect URLs**, add:
-   ```
-   https://localhost:3000/oauth/callback
-   ```
-   > ⚠ **Must be `https://`** — Slack rejects `http://localhost`. The toolkit
-   > generates a self-signed cert for this on first run.
+<details>
+<summary>What the manifest's scopes do (reference)</summary>
 
-2. Under **User Token Scopes**, add the scopes for the persona actions you want.
-   These are what `scripts/auth_user.py` requests when it captures a persona token
-   (see `USER_SCOPES` in that file — keep the two in sync):
+The redirect URL `https://localhost:3000/oauth/callback` must be `https://`.
+Slack rejects `http://localhost`, and the toolkit generates a self-signed cert
+for it on first run.
 
-   | Scope | Enables |
-   |---|---|
-   | `chat:write` | Post & delete messages/DMs/threads as the persona (**required**) |
-   | `users.profile:read` | Read the persona's profile (used in verification) |
-   | `users.profile:write` | Set the persona's display name / status |
-   | `files:write` | Upload files (contracts, decks, PDFs) as the persona |
-   | `reactions:write` | Add emoji reactions as the persona |
-   | `channels:write`, `groups:write` | Persona-level channel actions |
-   | `im:write`, `mpim:write` | Open DMs / group DMs as the persona |
+**User Token Scopes.** These are what `scripts/auth_user.py` requests when it
+captures a persona token (see `USER_SCOPES` in that file; keep it in sync with
+the manifest):
 
-   > ℹ **Minimum viable:** just `chat:write` gets you send + delete of
-   > messages and DMs. Add the rest as your demos need them. **Scopes are
-   > baked into a token at capture time** — if you add a scope later, you must
-   > re-run `scripts/auth_user.py` for that persona to pick it up.
+| Scope | Enables |
+|---|---|
+| `chat:write` | Post & delete messages/DMs/threads as the persona (**required**) |
+| `users.profile:read` | Read the persona's profile (used in verification) |
+| `users.profile:write` | Set the persona's display name / status |
+| `files:write` | Upload files (contracts, decks, PDFs) as the persona |
+| `reactions:write` | Add emoji reactions as the persona |
+| `channels:write`, `groups:write` | Persona-level channel actions |
+| `im:write`, `mpim:write` | Open DMs / group DMs as the persona |
 
-3. (For app notifications, channel admin, and strict verification) Under **Bot
-   Token Scopes**, add:
+**Bot Token Scopes** (app notifications, channel admin, strict verification):
 
-   | Scope | Enables |
-   |---|---|
-   | `chat:write` | Bot posts (app notification cards) |
-   | `chat:write.customize` | Post those cards under a **custom name + icon** (e.g. "PagerDuty") |
-   | `chat:write.public` | Post to public channels the bot hasn't joined |
-   | `users:read.email` | Strict persona verification (email → user ID) |
-   | `channels:read`, `groups:read` | List/resolve channels |
-   | `channels:manage`, `groups:write` | Create / rename / set topic / archive channels |
-   | `channels:join` | Bot self-joins public channels (needed before archiving/inviting) |
+| Scope | Enables |
+|---|---|
+| `chat:write` | Bot posts (app notification cards) |
+| `chat:write.customize` | Post those cards under a **custom name + icon** (e.g. "PagerDuty") |
+| `chat:write.public` | Post to public channels the bot hasn't joined |
+| `users:read.email` | Strict persona verification (email → user ID) |
+| `channels:read`, `groups:read` | List/resolve channels |
+| `channels:manage`, `groups:write` | Create / rename / set topic / archive channels |
+| `channels:join` | Bot self-joins public channels (needed before archiving/inviting) |
 
-4. Save changes, then **Install** (or reinstall) the app to your workspace so
-   the scopes take effect.
+</details>
+
+> ℹ **Adding a scope later?** Edit it under **OAuth & Permissions** (or the
+> app's **App Manifest** page), reinstall the app, and add it to `USER_SCOPES`
+> in `scripts/auth_user.py` if it's a user scope. **Scopes are baked into a
+> token at capture time**, so re-run `scripts/auth_user.py` for each persona to
+> pick it up.
 
 ---
 
@@ -328,8 +388,8 @@ setting topics on, and archiving channels. (The same bot token also backs
 strict verification in Step 7 and app notifications in Step 10 — one bot token
 serves all of them.)
 
-1. Make sure the **Bot Token Scopes** from [Step 2](#step-2-configure-oauth-scopes)
-   are added and the app is (re)installed.
+1. Make sure the app is installed ([Step 2](#step-2-install-the-app)). The
+   manifest from Step 1 already includes the bot scopes.
 2. Copy the **Bot User OAuth Token** (`xoxb-...`) from the app's **Install
    App** page.
    > ℹ Reinstalling the app does **not** invalidate already-captured
