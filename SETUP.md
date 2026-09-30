@@ -450,12 +450,14 @@ In Claude Code, Claude can run this and read the output back to you.
 
 ## Step 8 — Post your first message
 
-Test it out by asking Claude to send a message as one of the users you captured. In
-your Claude window, say something like:
+Test it out by asking Claude to send a message as one of the users you
+captured. In your Claude window, say something like:
 
-> "Send a DM from demoeng+jennifer_hynes_12345@slack-corp.com to
-> demoeng+john_smith_12345@slack-corp.com saying hi and asking if they're
-> free for a call tomorrow."
+> "Send a message as Jennifer Hynes in #general introducing herself and tagging
+> Amy Weaver asking for an update on the Welo Guard implementation."
+
+Just use people's names. Claude figures out which user is which from their
+email addresses, and can @-mention anyone in the org.
 
 Claude sends it as that user, so it shows up in Slack with their name and
 photo. Check Slack to confirm it arrived.
