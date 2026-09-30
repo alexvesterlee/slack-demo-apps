@@ -397,26 +397,39 @@ be grounded in real data — see Step 11.
 
 ---
 
-## Step 11 (optional) — Ground content in real data (MCP)
+## Step 11 (optional) — Ground content in real data (MCP or CLI)
 
-The most convincing demos reference data that actually exists. Claude Code can
-read that data through **MCP servers** and use it to write the message,
-contract, or card — so names, amounts, stages, and dates all line up.
+The most convincing demos reference data that actually exists, so names,
+amounts, stages, and dates all line up. There are **two ways** the toolkit
+reaches that data — you'll use both, for different jobs:
 
-- **Salesforce** — e.g. pull an open opportunity's name, amount, stage, and
-  close date, then seed a deal-team thread that matches it exactly.
+**A. Live, interactive reads — via an MCP server.** When you ask Claude Code in
+plain English — e.g. *"pull the open Omega renewal opp and write a thread about
+it in the Omega channel"* — Claude queries the connected **MCP server**, then
+uses the persona / app-notification scripts above to post the result. MCP
+servers are configured in **Claude Code itself** (not in this repo).
+
+- **Salesforce** — read an opportunity's name, amount, stage, close date, then
+  seed a matching deal-team thread.
 - **Jira / Atlassian, ServiceNow, or any other MCP server** — reference a real
-  ticket or record so the notification card links to something that exists.
+  ticket or record so a notification card links to something that exists.
 
-MCP servers are configured in **Claude Code itself** (not in this repo). Once
-connected, just ask Claude in plain English — e.g. *"pull the open Omega
-renewal opp and write a thread about it in the Omega channel."* Claude queries
-the MCP server, then uses the persona and app-notification scripts above to
-post the result.
+**B. Scripted reads/writes — via a vendor CLI.** The repo's own automation talks
+to Salesforce through the **`sf` CLI**, not MCP. For example
+`update_opportunities.py` shells out to it:
 
-> ℹ This is what keeps a demo internally consistent: the Slack story and the
-> CRM/ticketing data tell the *same* story because one was generated from the
-> other.
+```python
+subprocess.run([sf_bin(), "data", "query", "-o", SF_ORG, "--query", soql, "--json"])
+```
+
+So anything a *committed script* reads or writes in Salesforce uses the CLI
+(install it separately; on macOS it's `brew install --cask sf`, and it must be
+on your `PATH`). The live/interactive path (A) uses MCP.
+
+> ℹ Either way, the point is the same: the Slack story and the CRM/ticketing
+> data tell the *same* story because one was generated from the other.
+> **Rule of thumb:** *you asking Claude* → MCP; *a script running on its own* →
+> the vendor CLI.
 
 ---
 
@@ -466,6 +479,7 @@ Reinstalling the app does **not** invalidate existing user (`xoxp-`) tokens.
 | `blockkit/*.json` | Block Kit card layouts, one file per app |
 | `logos/*.png` | App icons for the cards |
 | `push_logos.py`, `push_blockkit.py` | Publish logos/templates to the public assets repo |
+| `update_opportunities.py` | Example: read/update Salesforce opps via the `sf` CLI (scripted data path) |
 
 > The various `seed_*.py`, `case_channels.py`, `*_thread.py`, and `*.json`
 > content files in the repo root are **example demo scenarios**, not part of
@@ -549,8 +563,10 @@ YOU  →  Claude Code (in your terminal)  →  the toolkit folder  →  Slack (+
    - **Direct API calls** (using your saved keys) to **Slack** — messages,
      files, channel admin, app-notification cards — and to **GitHub**, which
      hosts the logos + templates.
-   - **Through MCP servers** to **Salesforce, Jira, ServiceNow,** or anything
-     else — to read real data so the content stays authentic.
+   - **To data sources** — **Salesforce, Jira, ServiceNow,** etc. — to read
+     real data so the content stays authentic. Two ways: an **MCP server** for
+     live/interactive reads (you asking Claude), or a **vendor CLI** like `sf`
+     for what the committed scripts do on their own.
 
 That's why this runs in a **terminal / Claude Code**, not the Claude desktop
 app: it needs to run local scripts and hold local files (your tokens, the
