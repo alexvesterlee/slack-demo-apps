@@ -1,9 +1,9 @@
 # slack-demo-generator
 
-A demo-preparation toolkit for Slack Solutions Engineers. Use it to stage a
-realistic, "lived-in" Slack org before a customer demo — then clean it all up
-in one step afterward. You drive it in plain English through your AI coding
-agent (Claude Code); it turns each request into the right API calls.
+**An all-in-one Slack demo builder, powered by Claude Code.** Just describe the
+demo you want. Claude builds it end to end: messages from real users, app
+notifications, channels, and real data from Salesforce, Jira, and other
+connected tools. Save the steps as skills to rebuild or refresh it anytime.
 
 ## Why use this
 
