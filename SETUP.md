@@ -175,7 +175,9 @@ for future demos). You don't toggle anything by hand.
            "files:write",
            "reactions:write",
            "pins:write",
+           "pins:read",
            "bookmarks:write",
+           "bookmarks:read",
            "canvases:read",
            "canvases:write",
            "lists:write",
@@ -270,11 +272,14 @@ the manifest):
 | `channels:history`, `groups:history` | Read existing channel messages (check content, clean up bot posts) |
 | `im:write`, `mpim:write` | Send app notifications in DMs / group DMs |
 | `files:read`, `files:write` | Upload files as the app (reports, exports) |
-| `reactions:write`, `pins:write`, `bookmarks:write` | Add reactions, pin messages, add channel bookmarks |
+| `reactions:read`, `reactions:write` | Read and add emoji reactions as the app |
+| `pins:read`, `pins:write` | See and pin messages in channels |
+| `bookmarks:read`, `bookmarks:write` | See and add bookmarks to a channel's bookmark bar |
 | `canvases:read`, `canvases:write`, `lists:write` | Create and edit channel canvases and Lists |
+| `channels:manage`, `groups:write` (above) | **Archive** channels. Bots can't permanently *delete* a channel (see note below) |
 | `team:read`, `emoji:read` | Read workspace info and custom emoji |
 | `im:read`, `im:write.topic`, `mpim:history` | Read DMs, set DM topics, read group DM history |
-| `reactions:read`, `metadata.message:read` | Read reactions and message metadata |
+| `metadata.message:read` | Read message metadata |
 | `search:read.public`, `search:read.users` | Search public messages and users |
 | `users:write` | Set the bot's presence |
 | `links:write` | Custom link unfurls (needs unfurl domains configured) |
@@ -284,6 +289,13 @@ the manifest):
 
 Not every scope has a ready-made script. Most are there so Claude can do those
 things on request without you having to reinstall the app first.
+
+> ℹ **Deleting channels:** Slack has no bot scope for permanently deleting a
+> channel. The bot can **archive** channels, which hides them and is usually
+> all a demo needs. Permanent deletion requires the `admin.conversations:write`
+> user scope (already in the manifest) on the token of an **org admin or
+> owner**, with the app installed at the Enterprise org level. Ask Claude if
+> you need it.
 
 > ⚠ **About the `admin` scopes:** a user token only gets real admin power if
 > the persona who authorizes it is an org admin or owner, and because demo
