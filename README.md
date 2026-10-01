@@ -5,18 +5,34 @@ realistic, "lived-in" Slack org before a customer demo — then clean it all up
 in one step afterward. You drive it in plain English through your AI coding
 agent (Claude Code); it turns each request into the right API calls.
 
-Once set up, you can:
+## Why use this
 
-- **Post messages, threads, and DMs as real personas** (an AE, a CSM, a
-  customer contact) using each person's own user token — so content carries their
-  real name and avatar, not a bot's.
-- **Share files** (draft contracts, decks, PDFs) in-channel as a persona.
-- **Post app-style notification cards** — a PagerDuty alert, a Salesforce
-  "deal won," a Jira update — as the third-party app, via Block Kit.
-- **Create and manage channels** (create / rename / set topic / archive).
-- **Ground content in real data** by pulling from Salesforce, Jira, or any
-  other system through an MCP server, so the story stays internally consistent.
-- **Clean it all up** from a manifest of everything you posted.
+- **Full automation:** Refresh an entire demo story in one shot: send DMs,
+  post channel messages, trigger app notifications, and update Salesforce. It
+  can run on a set schedule (mine runs a skill every Monday at 8am, as long as
+  my computer is on), so your demo org is always fresh.
+- **Real messages from real users:** Messages, threads, and DMs are sent as the
+  actual users, with their real name and photo and no `APP` badge. They look
+  real, and because they're genuine user messages they also make Slack search
+  and Slackbot answers better.
+- **Real system connections:** Claude can read and update the tools you
+  connect, like creating Salesforce cases and opportunities or pushing out
+  close dates. Those changes can trigger your org's real Salesforce-to-Slack
+  workflow notifications, and Jira notifications can link to real tickets.
+- **App notifications for any app:** For systems you don't have access to,
+  post realistic notifications from apps like PagerDuty, Datadog, ServiceNow,
+  and Jira, using the [app notification library](blockkit/) I maintain in
+  this repo. Each one mimics the real app's layout and logo.
+- **Channel management:** Create channels, add users, set topics, and rename or
+  archive channels, so you can build out a full demo org, not just a few
+  messages.
+- **Document creation:** Generate PDFs and other documents from your
+  third-party data, and have users share them in channels and DMs.
+- **Salesforce page layout design:** Update Salesforce field names and page
+  structure to match a customer's layout. (Works well for field renames and
+  small changes; full object redesigns can be buggy.)
+- **One-step cleanup:** Everything sent as a user is tracked, so you can delete
+  it all with a single request.
 
 > **New to Vibe Coding or Terminal commands?** No problem. You can ask your
 > agent for clarification or step-by-step instructions at any point. This
